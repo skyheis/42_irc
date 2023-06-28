@@ -6,7 +6,7 @@
 /*   By: ggiannit <ggiannit@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/28 15:31:16 by ggiannit          #+#    #+#             */
-/*   Updated: 2023/06/28 19:25:32 by ggiannit         ###   ########.fr       */
+/*   Updated: 2023/06/28 19:51:13 by ggiannit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,23 @@
 #include "unistd.h"
 #include "sys/socket.h"
 #include "netinet/in.h"
-#include "cstring"
+#include <cstring>
+#include <csignal>
+
+
+int sock_fd = 0;
+int	server_life = 1;
+
+void	signalHandler(int signum) {
+	std::cout << "Interrupt signal (" << signum << ") received." << std::endl;
+	server_life = 0;
+	close(sock_fd);
+}
 
 int	main() {
 	in_port_t port = 8082;
 	
-	int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+	sock_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock_fd < 0) {
 		std::cerr << "Error creating socket" << std::endl;
 		return 1;
@@ -47,7 +58,10 @@ int	main() {
 	}
 	std::cout << "Socket ready to listen for connections" << std::endl;	
 
-	while(true) {
+
+	signal(SIGINT, signalHandler);
+
+	while(server_life) {
 		std::cout << std::endl;
 
 		sockaddr_in client_addr;
@@ -56,6 +70,7 @@ int	main() {
 		int client_fd = accept(sock_fd, (sockaddr *)&client_addr, &client_addr_len);
 		if (client_fd < 0) {
 			std::cerr << "Failed to accept the client" << std::endl;
+			close(client_fd);
 			continue;
 		}
 
