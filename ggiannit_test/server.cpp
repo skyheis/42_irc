@@ -6,7 +6,7 @@
 /*   By: ggiannit <ggiannit@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/28 15:31:16 by ggiannit          #+#    #+#             */
-/*   Updated: 2023/06/28 17:46:16 by ggiannit         ###   ########.fr       */
+/*   Updated: 2023/06/28 18:31:21 by ggiannit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,13 @@
 #include "unistd.h"
 #include "sys/socket.h"
 #include "netinet/in.h"
+#include "cstring"
 
 int	main() {
 	in_port_t port = 8080;
 	
 	int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sock_fd) {
+	if (sock_fd < 0) {
 		std::cerr << "Error creating socket" << std::endl;
 		return 1;
 	}
@@ -53,7 +54,7 @@ int	main() {
 		socklen_t	client_addr_len = sizeof(client_addr);
 		
 		int client_fd = accept(sock_fd, (sockaddr *)&client_addr, &client_addr_len);
-		if (client_fd) {
+		if (client_fd < 0) {
 			std::cerr << "Failed to accept the client" << std::endl;
 			continue;
 		}
@@ -68,15 +69,17 @@ int	main() {
 		else
 			std::cout << "New message from client: " << buffer << std::endl;
 
+
 		const char *message = "Hello, from server!";
-		ssize_t bytesSent = send(socketDescriptor, message, strlen(message), 0);
-		if (bytesSent == -1) {
-	
-		else {
-		}
-
-
+		ssize_t bytes_sent = send(client_fd, message, strlen(message), 0);
 		
+		if (bytes_sent < 0)
+			std::cerr << "Error while sending the message" << std::endl;
+		else
+			std::cerr << "Message successfully sent!" << std::endl;
+
 		close(client_fd);
 	}
+	close(sock_fd);
+	return (0);
 }

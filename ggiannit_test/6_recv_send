@@ -3,6 +3,8 @@ data over a socket connection. They are commonly used in network programming
 to transfer information between a client and a server.
 
 
+####### recv() #######
+
 The recv() function is used to receive data from a connected socket.
 It has the following function prototype:
 
@@ -36,7 +38,42 @@ cpp
 In this example, socketDescriptor is the file descriptor of the connected socket.
 The received data is stored in the buffer, and bytesRead contains the number of bytes received.
 
+The recv() function in C/C++ provides a flags parameter that allows you to modify its behavior and control
+how the data is received. Here are some commonly used flags for the recv() function:
 
+    MSG_DONTWAIT:	This flag sets the socket to non-blocking mode, causing recv() to return
+					immediately if there is no data available. If no data is available, recv()returns -1
+					with errno set to EAGAIN or EWOULDBLOCK. This flag is useful when you want to perform
+					other tasks while waiting for data.
+
+    MSG_PEEK:		The MSG_PEEK flag allows you to peek at the incoming data without removing it from the
+					socket's receive buffer. This means that subsequent calls to recv() will still retrieve the same data.
+					It is useful when you need to inspect the data before processing it, without actually consuming it.
+
+    MSG_WAITALL:	By default, recv() returns as soon as it receives any amount of data.
+					The MSG_WAITALL flag ensures that recv() blocks until the specified number of bytes (len parameter)
+					have been received or the connection is closed. This is useful when you expect a specific amount
+					of data and want to wait until it is fully received.
+
+    MSG_OOB:		The MSG_OOB flag is used for out-of-band data. It indicates that the received data is urgent
+					or has a higher priority than normal data. Out-of-band data is typically used in TCP socket
+					communication using the SO_OOBINLINE socket option.
+
+These are some of the commonly used flags for the recv() function. You can combine multiple flags using
+the bitwise OR operator (|) if you need to specify multiple flags at the same time. For example:
+
+		int flags = MSG_DONTWAIT | MSG_PEEK;
+		ssize_t bytesRead = recv(socketDescriptor, buffer, sizeof(buffer), flags);
+
+It's important to note that not all flags are supported on all platforms or for all socket types.
+Therefore, it's a good practice to check for specific errors and handle them accordingly
+when using flags with the recv() function.
+
+You can refer to the documentation or man pages of your specific operating system for more
+information on the flags supported by recv() and their detailed behavior.
+
+
+####### send() #######
 
 The send() function is used to send data over a connected socket.
 It has the following function prototype:
@@ -66,6 +103,13 @@ Here's an example that demonstrates the usage of send():
 In this example, socketDescriptor is the file descriptor of the connected socket.
 The message is the data to be sent, and strlen(message) provides the length of the message in bytes.
 
+
+------------------------------------------------------------------
 Both recv() and send() functions can be used in combination to establish bidirectional
 communication between a client and a server. It's important to handle errors appropriately
 and ensure that the correct amount of data is sent and received to ensure reliable communication.
+------------------------------------------------------------------
+
+
+
+
