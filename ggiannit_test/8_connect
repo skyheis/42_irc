@@ -1,0 +1,55 @@
+The connect() function in C/C++ is used to establish a connection to a remote server with a socket.
+It is typically used by client programs to initiate a connection to a server.
+
+The function prototype of connect() is as follows:
+
+		int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+
+The parameters of connect() are:
+
+    sockfd:		The socket file descriptor obtained from the socket() function call.
+				It represents the client's socket.
+
+    addr:		A pointer to a struct sockaddr that contains the address of the server
+				to which you want to connect.
+
+    addrlen:	The length of the address structure pointed to by addr.
+
+The return value of connect() is -1 on failure, and 0 on success.
+
+Here's an example of using connect() to establish a connection to a remote server:
+
+		#include <sys/socket.h>
+		#include <arpa/inet.h>
+
+		int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+		if (clientSocket == -1) {
+			// Error handling
+		}
+
+		struct sockaddr_in serverAddress{};
+		serverAddress.sin_family = AF_INET;
+		serverAddress.sin_port = htons(PORT);  // Specify the server port number
+		if (inet_pton(AF_INET, SERVER_IP, &(serverAddress.sin_addr)) <= 0) {
+			// Invalid address or address conversion error
+			// Error handling
+		}
+
+		if (connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {
+			// Connection failed
+			// Error handling
+		}
+
+In this example, clientSocket is the socket file descriptor obtained from the socket() function.
+PORT is the port number of the server to connect to, and SERVER_IP is the IP address of the server.
+The struct sockaddr_in is used for IPv4 addresses, and the server address is set
+using serverAddress.sin_port and serverAddress.sin_addr fields.
+
+If connect() returns -1, it indicates that the connection failed.
+You can handle the error by checking the value of errno and taking appropriate action.
+
+After a successful connect() call, the client socket is now connected to the server, and you can start
+sending and receiving data using send() and recv() functions.
+
+Note:	It's important to handle errors and check the return value of connect() to ensure 
+		the successful establishment of the connection.

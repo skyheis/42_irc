@@ -6,7 +6,7 @@
 /*   By: ggiannit <ggiannit@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/28 15:31:16 by ggiannit          #+#    #+#             */
-/*   Updated: 2023/06/28 18:31:21 by ggiannit         ###   ########.fr       */
+/*   Updated: 2023/06/28 19:25:32 by ggiannit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include "cstring"
 
 int	main() {
-	in_port_t port = 8080;
+	in_port_t port = 8082;
 	
 	int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock_fd < 0) {
@@ -66,8 +66,10 @@ int	main() {
 			std::cerr << "Connection closed by the client" << std::endl;
 		else if (bytes_read < 0)
 			std::cerr << "Error while receving the message" << std::endl;
-		else
+		else {
+			buffer[bytes_read] = '\0';
 			std::cout << "New message from client: " << buffer << std::endl;
+		}
 
 
 		const char *message = "Hello, from server!";

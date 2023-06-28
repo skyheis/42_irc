@@ -1,0 +1,43 @@
+The inet_pton() function is used to convert an IP address from text
+format to its binary representation. The name pton stands for "presentation to network."
+
+The function prototype of inet_pton() is as follows:
+
+		int inet_pton(int af, const char *src, void *dst);
+
+The parameters of inet_pton() are:
+
+    af:		The address family of the IP address. It can be either
+			AF_INET for IPv4 or AF_INET6 for IPv6.
+
+    src:	A pointer to a null-terminated string that represents
+			the IP address in text format.
+
+    dst:	A pointer to a buffer where the binary representation of
+			the IP address will be stored.
+
+The return value of inet_pton() is -1 on failure, 0 if the input address
+string is not a valid representation of the specified address family, or 1 on success.
+
+Here's an example of using inet_pton() to convert an IPv4 address
+from text to binary representation:
+
+		#include <arpa/inet.h>
+
+		const char* ipAddress = "192.168.0.1";
+		struct sockaddr_in sa{};
+		if (inet_pton(AF_INET, ipAddress, &(sa.sin_addr)) <= 0) {
+			// Invalid IP address format or conversion error
+			// Handle the error
+		}
+
+In this example, ipAddress is the string representation of the IPv4 address.
+The sa.sin_addr field is a member of the struct sockaddr_in structure, which is used for IPv4 addresses.
+The result of the conversion is stored in sa.sin_addr using inet_pton().
+
+The inet_pton() function is particularly useful when working with networking functions
+that require IP addresses in binary format, such as connect(), bind(), or accept().
+It allows you to convert IP addresses between text and binary representations as needed.
+
+Note:	It's important to perform error handling and check the return value of inet_pton()
+		to ensure the validity and successful conversion of the IP address.
