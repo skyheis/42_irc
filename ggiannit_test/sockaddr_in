@@ -1,0 +1,45 @@
+The sockaddr_in structure is used in C/C++ socket programming to represent an internet address for the IPv4 protocol.
+It contains the necessary information to establish a connection or bind a socket to a specific IP address and port number.
+
+Here's the definition of the sockaddr_in structure from the netinet/in.h header file:
+		struct sockaddr_in {
+			short int sin_family; // Address family (AF_INET)
+			unsigned short int sin_port; // Port number
+			struct in_addr sin_addr; // Internet address
+			unsigned char sin_zero[8]; // Padding for structure size compatibility
+		};
+
+Let's go through the members of the sockaddr_in structure:
+
+    sin_family:	This member specifies the address family and is set
+				to AF_INET, indicating IPv4 addresses.
+
+    sin_port:	This member holds the port number in network byte order (big-endian).
+				You can use the htons() function to convert the port number from host
+				byte order to network byte order.
+
+    sin_addr:	This member represents the IP address. It is of type struct in_addr
+				and contains the IP address in network byte order. To set the IP address,
+				you can use the inet_pton() function to convert a string
+				representation of the IP address to the required format.
+
+    sin_zero:	This member is used for padding to ensure that the sockaddr_in structure
+				has the same size as the older sockaddr structure.
+				It is generally not used and is typically set to all zeros.
+
+Here's an example that demonstrates how to set up the sockaddr_in structure with an IP address and port number:
+
+
+		#include <arpa/inet.h>
+
+		sockaddr_in serverAddress{};
+		serverAddress.sin_family = AF_INET;
+		serverAddress.sin_port = htons(portNumber); // Set the port number
+		inet_pton(AF_INET, ipAddress, &(serverAddress.sin_addr)); // Set the IP address
+
+In this example, portNumber represents the desired port number, and ipAddress is a string
+containing the IP address in the dotted-decimal notation. The inet_pton() function converts the IP address string
+to network byte order and assigns it to the sin_addr member of the sockaddr_in structure.
+
+The sockaddr_in structure is commonly used when working with sockets in C/C++ to specify the network
+address and port for communication.

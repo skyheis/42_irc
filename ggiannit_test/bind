@@ -1,0 +1,46 @@
+he bind() function in C/C++ is used to associate a socket with a specific
+address (IP address and port number) on the local machine. It is typically used by servers
+to specify the address on which they want to listen for incoming connections.
+
+The function prototype of bind() is as follows:
+
+		int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+
+The bind() function takes three parameters:
+
+    sockfd:	This parameter is the socket file descriptor, obtained from
+			the socket() function, that you want to bind to a specific address.
+
+    addr:	This parameter is a pointer to a sockaddr structure that contains
+			the address information to bind the socket to. The actual type of
+			the structure passed depends on the address family specified when creating the socket.
+			For IPv4 addresses, you use the sockaddr_in structure and cast it to sockaddr* for the addr parameter.
+
+    addrlen: This parameter specifies the length of the address structure pointed to by addr.
+			For IPv4 addresses, it is typically set to sizeof(struct sockaddr_in).
+
+The bind() function returns 0 on success and -1 on failure. In case of an error, you can check
+the value of errno to determine the specific error that occurred.
+
+Here's an example usage of the bind() function to bind a socket to a specific IP address and port number:
+
+		#include <arpa/inet.h>
+
+		int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+		// ... error handling omitted
+
+		sockaddr_in serverAddress{};
+		serverAddress.sin_family = AF_INET;
+		serverAddress.sin_addr.s_addr = INADDR_ANY; // Bind to any available IP address
+		serverAddress.sin_port = htons(portNumber); // Set the port number
+
+		if (bind(serverSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {
+			// Error handling
+		}
+
+In this example, serverSocket is the socket file descriptor obtained from the socket() function.
+portNumber represents the desired port number, and serverAddress is a sockaddr_in structure that contains the address information.
+
+By calling bind() with the appropriate socket and address parameters, you associate the socket
+with the specified address. After a successful bind(), the socket is ready to listen for incoming connections
+or perform other communication tasks associated with that address.

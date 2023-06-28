@@ -1,0 +1,67 @@
+The accept() function in C/C++ is used to accept incoming client connections on a server
+socket that has been set to the listening state using the listen() function.
+It blocks the execution of the program until a client connection is established.
+
+The function prototype of accept() is as follows:
+
+		int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+
+The accept() function takes three parameters:
+
+    sockfd:		This parameter is the socket file descriptor of the listening server
+				socket obtained from the socket() function and prepared
+				for incoming connections using listen().
+
+    addr:		This parameter is a pointer to a sockaddr structure that will be filled
+				with the client's address information, such as IP address and port number.
+				It can be set to NULL if you don't need this information.
+
+    addrlen:	This parameter is a pointer to a socklen_t variable that specifies the size of the addr structure.
+				Before calling accept(), you need to set addrlen to the size of the addr structure.
+				After accept() returns, the value of addrlen is updated to reflect
+				the actual size of the client's address.
+
+The accept() function returns a new socket file descriptor that represents
+the connection between the server and the client. This new socket is used
+for communication with the client, while the original server socket (sockfd)
+continues listening for additional connections.
+
+Here's an example that demonstrates how to use accept() in a loop to continuously
+accept incoming connections and handle them:
+
+		#include <arpa/inet.h>
+
+		int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+		// ... error handling omitted
+
+		// Bind and listen on the server socket
+		// ...
+
+		while (true) {
+			sockaddr_in clientAddress{};
+			socklen_t clientAddressLength = sizeof(clientAddress);
+			
+			// Accept a client connection
+			int clientSocket = accept(serverSocket, (struct sockaddr*)&clientAddress, &clientAddressLength);
+			if (clientSocket == -1) {
+				// Error handling
+				continue; // Skip to the next iteration of the loop
+			}
+			
+			// Handle the client connection
+			// ...
+			
+			close(clientSocket); // Close the client socket
+		}
+
+In this example, a while loop is used to continuously accept client connections.
+Inside the loop, the accept() function is called, which blocks the program execution until a client connection is established.
+The client's address information is stored in the clientAddress structure.
+
+Once a connection is accepted, you can perform any required processing or communication with the client within the loop.
+After you are done handling the connection, the client socket is closed using close().
+
+By placing the accept() function within a loop, the server can accept multiple client connections one after another,
+allowing it to handle concurrent connections from different clients.
+
+Remember to handle errors appropriately and ensure proper cleanup of resources to maintain a robust and reliable server implementation.

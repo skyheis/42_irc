@@ -1,0 +1,45 @@
+The listen() function in C/C++ is used to make a socket a passive socket, enabling it
+to accept incoming connections from client sockets. It is typically used by servers after
+the socket has been created and bound to a specific address using bind().
+
+The function prototype of listen() is as follows:
+
+		int listen(int sockfd, int backlog);
+
+The listen() function takes two parameters:
+
+    sockfd:		This parameter is the socket file descriptor, obtained
+				from the socket() function and bound to an address using bind(), on which
+				you want to listen for incoming connections.
+
+    backlog:	This parameter specifies the maximum number of pending connections that can
+				be in the queue awaiting acceptance by the server. It determines the length of the connection queue.
+				A reasonable value for backlog is typically in the range of 1 to 128, depending
+				on the expected load and system resources.
+
+The listen() function returns 0 on success and -1 on failure. In case of an error,
+you can check the value of errno to determine the specific error that occurred.
+
+Here's an example usage of the listen() function:
+
+		int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+		// ... error handling omitted
+
+		// Bind the server socket to an address
+		// ...
+
+		if (listen(serverSocket, backlog) == -1) {
+			// Error handling
+		}
+
+In this example, serverSocket is the socket file descriptor obtained from the socket()
+function and bound to a specific address. The backlog parameter represents the maximum
+number of pending connections that the server can handle.
+
+By calling listen() on the server socket, you make it a passive socket that is ready to accept incoming connections.
+Once the listen() function succeeds, the server can use the accept() function to accept
+connections from client sockets and handle them accordingly.
+
+It's worth noting that the listen() function does not block and wait for incoming connections.
+It only prepares the socket for accepting connections. The actual waiting for connections and handling
+them is typically done in a loop using the accept() function.

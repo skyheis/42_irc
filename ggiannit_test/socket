@@ -1,0 +1,44 @@
+The socket() function is a system call in C/C++ that is used to create a socket, which is a
+communication endpoint for sending and receiving data over a network. Sockets can be thought
+of as the fundamental building blocks of network communication.
+
+The function prototype of socket() is as follows:
+
+		int socket(int domain, int type, int protocol);
+
+The socket() function takes three parameters:
+
+    Domain:	This parameter specifies the communication domain or protocol 
+			family of the socket. It determines the address format to be used.
+			Some commonly used domains include:
+			- AF_INET: IPv4 Internet protocols.
+			- AF_INET6: IPv6 Internet protocols.
+			- AF_UNIX or AF_LOCAL: Local communication (Unix domain sockets).
+
+    Type:	This parameter specifies the type of the socket,
+			which defines the semantics of communication.
+			Some commonly used socket types include:
+			- SOCK_STREAM: Provides a reliable, stream-oriented, connection-based service (TCP).
+			- SOCK_DGRAM: Provides an unreliable, datagram-oriented service (UDP).
+			- SOCK_RAW: Provides raw network protocol access.
+
+    Protocol:	This parameter specifies the specific protocol to be used with the socket.
+				If set to 0, the system chooses the appropriate protocol based on the domain and type.
+				For example, when using AF_INET and SOCK_STREAM, the TCP protocol is typically used.
+
+
+The socket() function returns a socket descriptor (an integer) that uniquely identifies
+the socket within the process. A return value of -1 indicates an error occurred during socket creation.
+
+Here's an example usage of the socket() function to create a TCP/IP socket:
+
+cpp
+
+		int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+		if (serverSocket == -1) {
+			// Error handling
+		}
+
+In this example, AF_INET specifies the IPv4 domain, SOCK_STREAM specifies a TCP socket, and 0
+indicates that the system should choose the appropriate protocol.
+The resulting serverSocket variable will hold the socket descriptor if the creation is successful.	
