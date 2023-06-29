@@ -1,0 +1,50 @@
+The fcntl() function in C/C++ is used to perform various operations on open file descriptors, including changing their properties, controlling non-blocking I/O, and obtaining or modifying file descriptor flags.
+
+The function prototype of fcntl() is as follows:
+
+cpp
+
+#include <fcntl.h>
+int fcntl(int fd, int cmd, ... /* arg */);
+
+The parameters of fcntl() are:
+
+    fd: The file descriptor on which the operation will be performed.
+    cmd: The command that specifies the operation to be performed on the file descriptor.
+    ... /* arg */: Optional arguments that may be required depending on the command being used.
+
+The cmd parameter can take different values to indicate different operations. Some commonly used commands include:
+
+    F_DUPFD: Duplicate the file descriptor with the lowest available file descriptor greater than or equal to arg.
+    F_GETFL: Get the file status flags of the file descriptor.
+    F_SETFL: Set the file status flags of the file descriptor to the value specified by arg.
+    F_GETFD: Get the file descriptor flags.
+    F_SETFD: Set the file descriptor flags to the value specified by arg.
+
+Here's an example that demonstrates the usage of fcntl() to obtain and modify file descriptor flags:
+
+cpp
+
+#include <fcntl.h>
+#include <iostream>
+
+int fd = /* file descriptor */;
+int flags = fcntl(fd, F_GETFL);  // Get the file status flags
+
+if (flags == -1) {
+    std::cerr << "fcntl() error." << std::endl;
+    return -1;
+}
+
+flags |= O_NONBLOCK;  // Set the O_NONBLOCK flag
+
+if (fcntl(fd, F_SETFL, flags) == -1) {
+    std::cerr << "fcntl() error." << std::endl;
+    return -1;
+}
+
+In this example, fcntl() is first used with the F_GETFL command to retrieve the file status flags of the file descriptor. The obtained flags are stored in the variable flags. Then, the O_NONBLOCK flag is added to the existing flags using the bitwise OR operation. Finally, fcntl() is called again with the F_SETFL command to set the modified flags on the file descriptor.
+
+It's important to handle errors appropriately and check the return values of fcntl() to ensure successful modification of file descriptor properties.
+
+Please note that there are other commands available in fcntl() that allow for more advanced operations, such as file locking, duplicating file descriptors, and more. Consult the documentation or manual pages for further details on the available commands and their usage.

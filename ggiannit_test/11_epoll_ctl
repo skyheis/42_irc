@@ -1,0 +1,40 @@
+The epoll_ctl() function is used to control and modify the behavior of an epoll instance.
+It allows you to add or remove file descriptors from the epoll instance, and also to modify
+the events that are being monitored for a particular file descriptor.
+
+The function prototype of epoll_ctl() is as follows:
+
+		int epoll_ctl(int epollfd, int op, int fd, struct epoll_event* event);
+
+The parameters of epoll_ctl() are:
+
+    epollfd:	The file descriptor referring to the epoll instance.
+    op:			The operation to be performed on the epoll instance. It can be one of the following values:
+        			EPOLL_CTL_ADD: Add the file descriptor fd to the epoll instance and associate it with the specified event.
+					EPOLL_CTL_MOD: Modify the monitoring events for the file descriptor fd in the epoll instance, as specified by the new event.
+					EPOLL_CTL_DEL: Remove the file descriptor fd from the epoll instance.
+    fd:			The file descriptor to be added, modified, or removed from the epoll instance.
+    event:		A pointer to the struct epoll_event that describes the events to be monitored
+				for the file descriptor fd. This parameter is only relevant for the EPOLL_CTL_ADD and EPOLL_CTL_MOD operations.
+
+Here's an example of using epoll_ctl() to add a file descriptor to an epoll instance:
+
+		#include <sys/epoll.h>
+		#include <iostream>
+
+		int epollfd = /* file descriptor of the epoll instance */;
+		int fd = /* file descriptor to be added to the epoll instance */;
+		struct epoll_event event{};
+		event.events = EPOLLIN;  // specify the events to monitor
+		event.data.fd = fd;  // associate the file descriptor with the event
+
+		if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &event) == -1) {
+			std::cerr << "Failed to add file descriptor to epoll instance." << std::endl;
+			return -1;
+		}
+
+In this example, epoll_ctl() is called with the EPOLL_CTL_ADD operation to add the file descriptor fd to the epoll instance specified by epollfd. The monitoring events are specified in the event structure. If the function call succeeds, the file descriptor is added to the epoll instance and will be monitored for the specified events. If the function call fails, it indicates an error, and you can handle it accordingly.
+
+Similarly, you can use epoll_ctl() with the EPOLL_CTL_MOD operation to modify the events being monitored for a file descriptor in the epoll instance, or with the EPOLL_CTL_DEL operation to remove a file descriptor from the epoll instance.
+
+Remember to handle errors appropriately and check the return values of the function to ensure successful control and modification of the epoll instance.

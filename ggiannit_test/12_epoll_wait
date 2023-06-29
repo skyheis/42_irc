@@ -1,0 +1,51 @@
+The epoll_wait() function is used to wait for events on the file descriptors associated
+with an epoll instance. It blocks until events occur or until a specified timeout expires.
+It allows efficient monitoring of multiple file descriptors for various types of events
+using the epoll I/O event notification mechanism in Linux.
+
+The function prototype of epoll_wait() is as follows:
+
+	int epoll_wait(int epollfd, struct epoll_event* events, int maxevents, int timeout);
+
+The parameters of epoll_wait() are:
+
+    epollfd:	The file descriptor referring to the epoll instance.
+    events:		A pointer to an array of struct epoll_event where the events will be stored.
+    maxevents:	The maximum number of events to be stored in the events array.
+    timeout:	The maximum amount of time to wait for events, specified in milliseconds.
+				Use -1 for an indefinite wait, 0 for a non-blocking check, or a positive value fora specific timeout.
+
+The return value of epoll_wait() is the number of events that occurred, or -1 if an error occurred.
+If epoll_wait() returns 0, it means the timeout expired and no events occurred.
+
+Here's an example of using epoll_wait() to wait for events on an epoll instance:
+
+		#include <sys/epoll.h>
+		#include <iostream>
+
+		int epollfd = /* file descriptor of the epoll instance */;
+		constexpr int MAX_EVENTS = 10;
+		struct epoll_event events[MAX_EVENTS];
+
+		int numEvents = epoll_wait(epollfd, events, MAX_EVENTS, -1);
+		if (numEvents == -1) {
+			std::cerr << "epoll_wait() error." << std::endl;
+			return -1;
+		}
+
+		// Process the received events
+		for (int i = 0; i < numEvents; ++i) {
+			// Handle the events[i] structure which contains information about the event
+			// For example, you can check events[i].events to determine the type of event that occurred.
+			// You can also access the associated file descriptor using events[i].data.fd.
+		}
+
+In this example, epoll_wait() is called to wait for events on the epoll instance specified by epollfd.
+The events are stored in the events array, which can hold up to MAX_EVENTS number of events.
+The -1 timeout indicates an indefinite wait, meaning the function blocks until events occur.
+
+The return value of epoll_wait() is stored in numEvents, which represents the number of events that occurred.
+You can then iterate over the received events and handle them accordingly.
+
+Remember to handle errors appropriately and check the return value of epoll_wait() to handle timeout
+conditions or any other errors that may occur during the event waiting process.

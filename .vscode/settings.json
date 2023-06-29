@@ -48,6 +48,13 @@
 		"streambuf": "cpp",
 		"typeinfo": "cpp",
 		"recv_send": "c",
-		"cstring": "cpp"
+		"cstring": "cpp",
+		"12_epoll_wait": "cpp",
+		"chrono": "cpp",
+		"csignal": "cpp",
+		"ctime": "cpp",
+		"ratio": "cpp",
+		"stop_token": "cpp",
+		"thread": "cpp"
 	}
 }

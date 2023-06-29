@@ -1,0 +1,34 @@
+The epoll_create1() function is used to create an epoll instance, which is the main object
+that allows monitoring and handling of I/O events using the epoll mechanism in Linux.
+It returns a file descriptor associated with the epoll instance.
+
+The function prototype of epoll_create1() is as follows:
+
+		int epoll_create1(int flags);
+
+The parameter flags is an integer that allows specifying additional options for the epoll instance.
+Currently, the only supported value is 0, which creates a regular epoll instance.
+
+The return value of epoll_create1() is the file descriptor associated with the created epoll instance.
+If an error occurs, it returns -1, and you can check the value of errno to determine the specific error condition.
+
+Here's an example of using epoll_create1() to create an epoll instance:
+
+		#include <sys/epoll.h>
+		#include <iostream>
+
+		int epollfd = epoll_create1(0);
+		if (epollfd == -1) {
+			std::cerr << "Failed to create epoll instance." << std::endl;
+			return -1;
+		}
+
+In this example, epoll_create1(0) is called to create an epoll instance. If the function call
+succeeds, the file descriptor associated with the epoll instance is stored in the variable epollfd.
+If the function call fails, it indicates an error, and you can handle it accordingly.
+
+Once you have created the epoll instance using epoll_create1(), you can add file descriptors
+to it using epoll_ctl() with the EPOLL_CTL_ADD command and monitor events on those file descriptors using epoll_wait().
+
+Remember to handle errors appropriately and check the return values of the functions
+to ensure successful creation and usage of the epoll instance.

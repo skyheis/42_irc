@@ -1,0 +1,55 @@
+The struct epoll_event is a structure used in the epoll I/O event notification mechanism
+in Linux. It represents an event that can be monitored by the epoll API.
+Here's an explanation of the members of the struct epoll_event:
+
+		struct epoll_event {
+			uint32_t events;  // The events to monitor
+			epoll_data_t data;  // Data associated with the event
+		};
+
+The struct epoll_event has two members:
+
+    events:	This member specifies the events of interest that you want to monitor.
+			It is an unsigned 32-bit integer of type uint32_t.
+			You can set multiple event flags by bitwise OR'ing them together.
+			The commonly used event flags are:
+				EPOLLIN:	Indicates that there is data available to read.
+				EPOLLOUT:	Indicates that the file descriptor is ready for writing.
+				EPOLLERR:	Indicates that an error has occurred on the file descriptor.
+				EPOLLRDHUP:	Indicates that the remote end of the socket has been closed or shutdown.
+
+   		There are other event flags available as well, which you can refer to in the epoll documentation.
+
+    data:	This member is of type epoll_data_t and holds the data associated with the event.
+			It is a union that can be used to associate either a file descriptor (int) or
+			a pointer (void*) with the event. It allows you to associate additional data with
+			the event to identify the corresponding file descriptor or any other context-specific information.
+
+   		The epoll_data_t union looks like this:
+
+			typedef union epoll_data {
+				void* ptr;
+				int fd;
+				uint32_t u32;
+				uint64_t u64;
+			} epoll_data_t;
+
+You can use the appropriate member of the data union depending on your needs.
+For example, if you want to associate a file descriptor with the event, you can set the fd member of the data union.
+
+Example usage:
+
+		struct epoll_event event{};
+		event.events = EPOLLIN | EPOLLOUT;
+		event.data.fd = fileDescriptor;
+
+In this example, the events member is set to monitor both read and write events, and
+the data.fd member is set to associate the fileDescriptor with the event.
+
+The struct epoll_event allows you to specify the events you want to monitor and associate
+relevant data with each event. It provides flexibility in monitoring multiple events
+simultaneously and associating additional information with the events.
+
+When using epoll_wait(), the received events will be populated into an array of struct epoll_event
+structures, and you can examine the events member of each structure to determine the type of event
+that occurred and take appropriate action based on it.

@@ -1,0 +1,15 @@
+[Title](https://modern.ircdocs.horse/)
+
+Nicknames are non-empty strings with the following restrictions:
+
+    - They MUST NOT contain any of the following characters: space (' ', 0x20), comma (',', 0x2C), asterisk ('*', 0x2A), question mark ('?', 0x3F), exclamation mark ('!', 0x21), at sign ('@', 0x40).
+    - They MUST NOT start with any of the following characters: dollar ('$', 0x24), colon (':', 0x3A).
+    - They MUST NOT start with a character listed as a channel type prefix.
+    - They SHOULD NOT contain any dot character ('.', 0x2E).
+
+
+
+Channel names are strings (beginning with specified prefix characters). Apart from the requirement of the first character being a valid channel type prefix character; the only restriction on a channel name is that it may not contain any spaces (' ', 0x20), a control G / BELL ('^G', 0x07), or a comma (',', 0x2C) (which is used as a list item separator by the protocol).
+
+
+[Title](https://modern.ircdocs.horse/#client-to-server-protocol-structure)
