@@ -2,7 +2,7 @@
 
 NAME = server
 
-SRC = server.cpp
+SRC = server.cpp Server_init.cpp Server_life.cpp 
 
 OBJ = $(SRC:.cpp=.o)
 
