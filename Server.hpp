@@ -12,6 +12,8 @@
 #include <cstdlib>
 #include <map>
 
+#include "Client.hpp"
+
 #define MAX_BUF		512
 #define MAX_EVENTS	1024
 
@@ -31,7 +33,8 @@ typedef struct	s_server {
 	sockaddr_in client_addr;
 	socklen_t	client_addr_len;
 
-/* 	map<int, Client> client_map; */
+	std::map<int, Client*>			client_map;
+	// map<std::string, Channel>	channels;
 
 	char		buffer[MAX_BUF];
 	ssize_t 	bytes_read;
