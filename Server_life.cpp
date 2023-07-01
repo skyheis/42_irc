@@ -17,7 +17,7 @@ void	wait_events(t_server &srv, int &ev_nums) {
 		perror("Error in epoll()");
 		server_exit(srv, 1);
 	}
-	std::cout << "num events: " << ev_nums << std::endl;
+	// std::cout << "num events: " << ev_nums << std::endl;
 }
 
 void console_event(t_server &srv) {
@@ -28,6 +28,7 @@ void console_event(t_server &srv) {
 
 void new_client_event(t_server &srv) {
 	int result;
+	static int index = 0;
 	
 	srv.client_fd = accept(srv.socket, (sockaddr *)&srv.client_addr, &srv.client_addr_len);
 	if (srv.client_fd < 0) {
@@ -39,7 +40,7 @@ void new_client_event(t_server &srv) {
 	srv.ev_def.data.fd = srv.client_fd;
 	
 	//! ---------------------- new client in  map -------------------------------- */
-	srv.client_map[srv.client_fd] = new Client(srv.client_fd);
+	srv.client_map[srv.client_fd] = new Client(srv.client_fd, index++);
 	//new client;
 	//srv.client_map.new()  <--> map <int => clinet_fd, client => new client>
 	//aggiungi a mappa
@@ -57,10 +58,12 @@ void	new_cmd_event(t_server &srv, int i) {
 	std::map<int, Client*>::iterator it = srv.client_map.find(srv.ev_lst[i].data.fd);
 
 	// srv.client_fd = srv.ev_lst[i].data.fd;
-	srv.bytes_read = recv(srv.client_fd, srv.buffer, sizeof(srv.buffer), 0);
+	int client_fd = it->first;
+	// Client* client = it->second;
+	srv.bytes_read = recv(client_fd, srv.buffer, sizeof(srv.buffer), 0);
 	if (!srv.bytes_read) {
 		std::cerr << "Connection closed by the client" << std::endl;
-		epoll_ctl(srv.poll_fd, EPOLL_CTL_DEL, srv.client_fd, &srv.ev_lst[i]);
+		epoll_ctl(srv.poll_fd, EPOLL_CTL_DEL, client_fd, &srv.ev_lst[i]);
 		// close(srv.client_fd);/* remove epoll_ctl */
 		//! ------------------- remove from map ------------------- */
 		srv.client_map.erase(it);
@@ -85,52 +88,41 @@ void	new_cmd_event(t_server &srv, int i) {
 			std::string command, arg;
 			std::getline(iss, command, ' ');
 			std::getline(iss, arg, ' ');
-			if (srv.client_map[srv.client_fd]->get_authenticate() == false)
+			if (srv.client_map[client_fd]->get_authenticate() == false)
 			{
 				if (command == "PASS")
 				{
 					if (arg != srv.passwd)
 					{
 						std::string wrong = "Err_num(464) Wrong password\r\n";
-						send(srv.client_fd, wrong.c_str(), wrong.length(), 0);
+						send(client_fd, wrong.c_str(), wrong.length(), 0);
 						srv.client_map.erase(it);
 						delete it->second;
-						close(srv.client_fd);
+						close(client_fd);
 					}
 					else
 					{
 						std::string reply = "Welcome to the Internet Relay Network\r\n";
-						send(srv.client_fd, reply.c_str(), reply.length(), 0);
-						srv.client_map[srv.client_fd]->set_authenticate(true);
+						send(client_fd, reply.c_str(), reply.length(), 0);
+						srv.client_map[client_fd]->set_authenticate(true);
 					}
 				}
 				else
 				{
 					std::string reply = "ERROR :Password required\r\n";
-					send(srv.client_fd, reply.c_str(), reply.length(), 0);
-					close(srv.client_fd);
+					send(client_fd, reply.c_str(), reply.length(), 0);
+					close(client_fd);
 					srv.client_map.erase(it);
 					delete it->second;
 				}
 			}
 			else
-				std::cout << "command: " << command << " arg: " << arg << std::endl;
+				srv.client_map[client_fd]->handleCmd(srv.buffer);
 		}
 		else
 			std::cerr << "Messege recieved is not formated correctly" << std::endl;
 	}
 }
-
-    // std::string str = "PASS 123";
-    // std::istringstream iss(str);
-
-    // std::string command, password;
-    // std::getline(iss, command, ' ');
-    // std::getline(iss, password, ' ');
-
-    // std::cout << "Command: " << command << std::endl;
-    // std::cout << "Password: " << password << std::endl;
-
 
 void	ft_server_life(t_server &srv) {
 	int	ev_nums;
