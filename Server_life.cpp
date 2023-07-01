@@ -97,12 +97,13 @@ void	new_cmd_event(t_server &srv, int i) {
 			{
 				srv.buffer[srv.bytes_read - 1] = '\0';
 				std::cout << "client send: " << srv.buffer << std::endl;
-				//elabora il messaggio
 				srv.client_map[client_fd]->handleCmd(srv.buffer, srv);
 			}
 			else if (command == "PASS")
 			{
-				if (arg != srv.passwd)
+				std::string konversation = ":";
+				konversation += srv.passwd;
+				if (arg != srv.passwd && arg != konversation)
 				{
 					std::string wrong = "Err_num(464) Wrong password\r\n";
 					send(client_fd, wrong.c_str(), wrong.length(), 0);
