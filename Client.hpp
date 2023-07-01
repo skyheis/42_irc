@@ -1,10 +1,12 @@
 #pragma once
 
 #include <iostream>
+#include <algorithm>
 #include <string>
 #include <sstream>
 #include <map>
 #include "sys/socket.h"
+#include "Server.hpp"
 
 class Client
 {
@@ -19,15 +21,17 @@ class Client
 		std::string	buf;
 		Client();
 	public:
+		typedef struct s_server Server;
+		
 		Client(int const &fd, int index);
 
 		void	set_authenticate(bool auth);
 		bool	get_authenticate() const ;
 
-		void	handleCmd(std::string str);
+		void	handleCmd(std::string str, Server &srv);
 
-		void	setUser();
-		// void	setNick();
+		void	setUser(Server &srv);
+		void	setNick(Server &srv);
 		// void	joinChannel();
 		// void	kickUser();
 		// void	privmsg();

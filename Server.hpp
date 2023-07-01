@@ -11,8 +11,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <map>
+#include <vector>
 
 #include "Client.hpp"
+
+class Client;
 
 #define MAX_BUF		512
 #define MAX_EVENTS	1024
@@ -35,6 +38,7 @@ typedef struct	s_server {
 
 	std::map<int, Client*>			client_map;
 	// map<std::string, Channel>	channels;
+	std::vector<std::string>		nicknames;
 
 	char		buffer[MAX_BUF];
 	ssize_t 	bytes_read;

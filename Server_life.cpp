@@ -117,7 +117,7 @@ void	new_cmd_event(t_server &srv, int i) {
 				}
 			}
 			else
-				srv.client_map[client_fd]->handleCmd(srv.buffer);
+				srv.client_map[client_fd]->handleCmd(srv.buffer, srv);
 		}
 		else
 			std::cerr << "Messege recieved is not formated correctly" << std::endl;
