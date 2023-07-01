@@ -61,11 +61,16 @@ void	new_cmd_event(t_server &srv, int i) {
 	int client_fd = it->first;
 	// Client* client = it->second;
 	srv.bytes_read = recv(client_fd, srv.buffer, sizeof(srv.buffer), 0);
+	
+
 	if (!srv.bytes_read) {
 		std::cerr << "Connection closed by the client" << std::endl;
 		epoll_ctl(srv.poll_fd, EPOLL_CTL_DEL, client_fd, &srv.ev_lst[i]);
 		// close(srv.client_fd);/* remove epoll_ctl */
 		//! ------------------- remove from map ------------------- */
+		
+		//send disconect to all channels and remove from all channels
+
 		srv.client_map.erase(it);
 		delete it->second;
 	}
@@ -88,36 +93,40 @@ void	new_cmd_event(t_server &srv, int i) {
 			std::string command, arg;
 			std::getline(iss, command, ' ');
 			std::getline(iss, arg, ' ');
-			if (srv.client_map[client_fd]->get_authenticate() == false)
+			if (srv.client_map[client_fd]->get_authenticate() == true)
 			{
-				if (command == "PASS")
+				srv.buffer[srv.bytes_read - 1] = '\0';
+				std::cout << "client send: " << srv.buffer << std::endl;
+				//elabora il messaggio
+				srv.client_map[client_fd]->handleCmd(srv.buffer, srv);
+			}
+			else if (command == "PASS")
+			{
+				if (arg != srv.passwd)
 				{
-					if (arg != srv.passwd)
-					{
-						std::string wrong = "Err_num(464) Wrong password\r\n";
-						send(client_fd, wrong.c_str(), wrong.length(), 0);
-						srv.client_map.erase(it);
-						delete it->second;
-						close(client_fd);
-					}
-					else
-					{
-						std::string reply = "Welcome to the Internet Relay Network\r\n";
-						send(client_fd, reply.c_str(), reply.length(), 0);
-						srv.client_map[client_fd]->set_authenticate(true);
-					}
+					std::string wrong = "Err_num(464) Wrong password\r\n";
+					send(client_fd, wrong.c_str(), wrong.length(), 0);
+					srv.client_map.erase(it);
+					delete it->second;
+					close(client_fd);
 				}
 				else
 				{
-					std::string reply = "ERROR :Password required\r\n";
+					std::string reply = "Welcome to the Internet Relay Network\r\n";
 					send(client_fd, reply.c_str(), reply.length(), 0);
-					close(client_fd);
-					srv.client_map.erase(it);
-					delete it->second;
+					srv.client_map[client_fd]->set_authenticate(true);
 				}
+			// else
+			// {
+			// 	std::string reply = "ERROR :Password required\r\n";
+			// 	send(client_fd, reply.c_str(), reply.length(), 0);
+			// 	close(client_fd);
+			// 	srv.client_map.erase(it);
+			// 	delete it->second;
+			// }
 			}
-			else
-				srv.client_map[client_fd]->handleCmd(srv.buffer, srv);
+			// else
+				
 		}
 		else
 			std::cerr << "Messege recieved is not formated correctly" << std::endl;

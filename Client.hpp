@@ -8,9 +8,12 @@
 #include "sys/socket.h"
 #include "Server.hpp"
 
+struct Server;
+
 class Client
 {
 	private:
+		std::map<std::string, void(Client::*)(Server &srv)> mappings;
 		int const	_fd;
 		int			index;
 		bool 		_authenticate;
