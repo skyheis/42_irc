@@ -6,7 +6,7 @@ void	Client::set_authenticate(bool auth) { _authenticate = auth; }
 
 bool	Client::get_authenticate() const { return _authenticate; }
 
-void	Client::setUser(Server &srv)
+void	Client::setUser(t_server &srv)
 {
 	(void)srv;
 	std::istringstream iss(buf);
@@ -33,7 +33,7 @@ void	Client::setUser(Server &srv)
 	// std::cout << "Realname: " << realname << std::endl;
 }
 
-void	Client::setNick(Server &srv)
+void	Client::setNick(t_server &srv)
 {
 	std::istringstream iss(buf);
 	std::string command, nick;
@@ -60,10 +60,10 @@ void	Client::setNick(Server &srv)
 	std::cout << "Nickname: " << nickname << std::endl;
 }
 
-void	Client::handleCmd(std::string str, Server &srv)
+void	Client::handleCmd(std::string str, t_server &srv)
 {
 	buf = str;
-	std::map<std::string, void(Client::*)(Server &srv)> mappings;
+	std::map<std::string, void(Client::*)(t_server &srv)> mappings;
 	mappings["USER"] = &Client::setUser;
 	mappings["NICK"] = &Client::setNick;
 	// mappings["JOIN"] = &Client::joinChannel;
@@ -79,7 +79,7 @@ void	Client::handleCmd(std::string str, Server &srv)
 	std::getline(iss, command, ' ');
 	std::getline(iss, arg, '\0');
 
-	std::map<std::string, void(Client::*)(Server &srv)>::iterator it = mappings.find(command);
+	std::map<std::string, void(Client::*)(t_server &srv)>::iterator it = mappings.find(command);
 	if(it != mappings.end())
 	{
 		std::cout << "\033[32mClient:\033[0m " << index << " " << "\033[34mcommand:\033[0m " << command << " \033[33margs:\033[0m " << arg << std::endl;

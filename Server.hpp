@@ -14,8 +14,10 @@
 #include <vector>
 
 #include "Client.hpp"
+#include "Channel.hpp"
 
 class Client;
+class Channel;
 
 #define MAX_BUF		512
 #define MAX_EVENTS	1024
@@ -37,7 +39,7 @@ typedef struct	s_server {
 	socklen_t	client_addr_len;
 
 	std::map<int, Client*>			client_map;
-	// map<std::string, Channel>	channels;
+	std::map<std::string, Channel>	channels;
 	std::vector<std::string>		nicknames;
 
 	char		buffer[MAX_BUF];
