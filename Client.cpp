@@ -66,7 +66,7 @@ void	Client::handleCmd(std::string str, t_server &srv)
 	std::map<std::string, void(Client::*)(t_server &srv)> mappings;
 	mappings["USER"] = &Client::setUser;
 	mappings["NICK"] = &Client::setNick;
-	// mappings["JOIN"] = &Client::joinChannel;
+	mappings["JOIN"] = &Client::joinChannel;
 	// mappings["KICK"] = &Client::kickUser;
 	// mappings["PRIVMSG"] = &Client::privmsg;
 	// mappings["QUIT"] = &Client::quit;
@@ -90,3 +90,12 @@ void	Client::handleCmd(std::string str, t_server &srv)
 }
 
 Client::~Client() {}
+
+std::string	Client::getNick(void) const {
+	return (this->nickname);
+}
+
+int Client::getFd(void) const {
+	return (this->_fd);
+}
+

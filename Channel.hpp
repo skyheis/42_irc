@@ -12,7 +12,7 @@
 #define MD_L	4
 
 class	Client;
-struct	t_server;
+struct	s_server;
 
 class Channel {
 	
@@ -26,14 +26,14 @@ class Channel {
 		bool			_mode[5];
  		
 		Channel(void);
-		Channel(Channel const &src);
-		Channel &operator=(Channel const &rhs);
 
 	public:
 
 		Channel(std::string const &name);
 		Channel(std::string const &name, std::string const &key);
-		~Channel();
+		Channel(Channel const &src);
+		virtual ~Channel();
+		Channel &operator=(Channel const &rhs);
 
 		std::string		getName() const;
 		std::string		getTopic() const;

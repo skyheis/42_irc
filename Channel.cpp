@@ -2,18 +2,10 @@
 
 Channel::Channel(void) {}
 
-Channel::Channel(std::string const &name) : _name(name) {
+Channel::Channel(std::string const &name) : _name(name) , _topic("It's topic a top or pic?") {
 	_mode[MD_I] = false;
 	_mode[MD_T] = false;
 	_mode[MD_K] = false;
-	_mode[MD_O] = false;
-	_mode[MD_L] = false;
-}
-
-Channel::Channel(std::string const &name, std::string const &key) : _name(name), _key(key) {
-	_mode[MD_I] = false;
-	_mode[MD_T] = false;
-	_mode[MD_K] = true;
 	_mode[MD_O] = false;
 	_mode[MD_L] = false;
 }
@@ -37,31 +29,48 @@ Channel &Channel::operator=(Channel const &rhs) {
 		_mode[MD_O] = rhs._mode[MD_O];
 		_mode[MD_L] = rhs._mode[MD_L];
 	}
-	return *this;
+	return (*this);
 }
 
 std::string		Channel::getName() const {
-	return _name;
+	return (_name);
 }
 
 std::string		Channel::getTopic() const {
-	return _topic;
+	return (_topic);
 }
 
 std::string		Channel::getKey() const {
-	return _key;
+	return (_key);
 }
 
 std::vector<Client*>	Channel::getClients() const {
-	return _clients;
+	return (_clients);
 }
 
 std::vector<Client*>	Channel::getOperators() const {
-	return _operators;
+	return (_operators);
 }
 
 bool			Channel::getMode(int const &mode) const {
-	return _mode[mode];
+	return (_mode)[mode];
+}
+
+void	Channel::setKey(std::string const &key) {
+	this->_key = key;
+	this->setMode(MD_K, true);
+}
+
+void	Channel::setMode(int const &mode, bool const &value) {
+	this->_mode[mode] = value;
+}
+
+void	Channel::addClient(Client *client) {
+	this->_clients.push_back(client);
+}
+
+void	Channel::addOperator(Client *client) {
+	this->_operators.push_back(client);
 }
 
 //if is operator

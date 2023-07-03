@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <algorithm>
 #include <string>
 #include <sstream>
@@ -8,13 +7,13 @@
 #include "sys/socket.h"
 #include "Server.hpp"
 
-struct t_server;
+typedef struct s_server t_server;
 
 class Client
 {
 	private:
-		std::map<std::string, void(Client::*)(t_server &srv)> mappings;
-		int const	_fd;
+		// std::map<std::string, void(Client::*)(t_server &srv)> mappings;
+		int			_fd;
 		int			index;
 		bool 		_authenticate;
 		std::string	username;
@@ -24,7 +23,6 @@ class Client
 		std::string	buf;
 		Client();
 	public:
-		typedef struct s_server t_server;
 		
 		Client(int const &fd, int index);
 
@@ -32,6 +30,9 @@ class Client
 		bool	get_authenticate() const ;
 
 		void	handleCmd(std::string str, t_server &srv);
+
+		std::string	 getNick(void) const;
+		int			 getFd(void) const;
 
 		void	setUser(t_server &srv);
 		void	setNick(t_server &srv);

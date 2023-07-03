@@ -58,6 +58,7 @@ void	new_cmd_event(t_server &srv, int i) {
 	std::map<int, Client*>::iterator it = srv.client_map.find(srv.ev_lst[i].data.fd);
 
 	// srv.client_fd = srv.ev_lst[i].data.fd;
+	srv.client_fd = it->first;
 	int client_fd = it->first;
 	// Client* client = it->second;
 	srv.bytes_read = recv(client_fd, srv.buffer, sizeof(srv.buffer), 0);
