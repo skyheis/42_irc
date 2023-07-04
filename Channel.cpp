@@ -2,7 +2,7 @@
 
 Channel::Channel(void) {}
 
-Channel::Channel(std::string const &name) : _name(name) , _topic("It's topic a top or pic?") {
+Channel::Channel(std::string const &name) : _name(name) , _topic("is topic a top or a pic?") {
 	_mode[MD_I] = false;
 	_mode[MD_T] = false;
 	_mode[MD_K] = false;
@@ -44,11 +44,11 @@ std::string		Channel::getKey() const {
 	return (_key);
 }
 
-std::vector<Client*>	Channel::getClients() const {
+std::set<Client*>	Channel::getClients() const {
 	return (_clients);
 }
 
-std::vector<Client*>	Channel::getOperators() const {
+std::set<Client*>	Channel::getOperators() const {
 	return (_operators);
 }
 
@@ -66,11 +66,11 @@ void	Channel::setMode(int const &mode, bool const &value) {
 }
 
 void	Channel::addClient(Client *client) {
-	this->_clients.push_back(client);
+	this->_clients.insert(client);
 }
 
 void	Channel::addOperator(Client *client) {
-	this->_operators.push_back(client);
+	this->_operators.insert(client);
 }
 
 //if is operator

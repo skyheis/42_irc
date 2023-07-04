@@ -1,59 +1,44 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 
-void	ft_send_string_to_channel(std::map<std::string, Channel>::iterator &it, std::string msg) {
-	std::vector<Client *> each = it->second.getClients();
-	// std::vector<Client *>::iterator e_each = it->second.getClients().end();
-	// std::map<int, Client *>::iterator it = it->second.getClients().begin();
+// std::cout << "Debug: " << *each << std::endl;
 
-	for (int i = 0; each[i]; i++){
-		send(each[i]->getFd(), msg.c_str(), msg.length(), 0);
-	}
-
-	// std::cout << "Debug: " << *each << std::endl;
-	// for (; each != e_each; each++) {
-	// 	// Client *clnt = *each;
-	// 	send((*each)->getFd(), msg.c_str(), msg.length(), 0);
-	// }
-	// for (loco = srv.client_map.begin(); loco != srv.client_map.end(); ++loco)
-	// {
-	// 	send(loco->second->getFd(), msg.c_str(), msg.length(), 0);
-	// }
-}
-
-void	ft_send_topic(t_server &srv, std::map<std::string, Channel>::iterator &it) {
-	std::string msg = "ircap 332 " + srv.client_map[srv.client_fd]->getNick() + " #" + it->first + " :" + it->second.getTopic() + "\r\n";
-
-	send(srv.client_fd, msg.c_str(), msg.length(), 0);
-}
-
-void	ft_send_channel_list(t_server &srv, std::map<std::string, Channel>::iterator &it) {
-	// std::vector<Client *>::iterator each = it->second.getClients().begin();
-	// std::vector<Client *>::iterator e_each = it->second.getClients().end();
-	std::vector<Client *> each = it->second.getClients();
+void	ft_send_string_to_channel(Channel &ch, std::string msg) {
+	std::set<Client *>::iterator each;
 	
-	// for (int i = 0; each[i]; i++){
-	// 	send(each[i]->getFd(), msg.c_str(), msg.length(), 0);
-	// }
+	each = ch.getClients().begin();
 
-	// // std::vector<Client *>::iterator s_ops = it->second.getOperators().begin();
-	// std::vector<Client *>::iterator e_ops = it->second.getOperators().end();
-	std::string msg = "ircap 353 " + srv.client_map[srv.client_fd]->getNick() + " = #" + it->first + " :";
+	for (std::set<Client*>::size_type i = 0; i < ch.getClients().size(); i++, each++) {
+		send((*each)->getFd(), msg.c_str(), msg.length(), 0);
+	}
+}
 
-	for (int i = 0; each[i]; i++){
+void	ft_send_topic(Client &they, Channel &ch) {
+	std::string msg = "ircap 332 " + they.getNick() + " #" + ch.getName() + " :" + ch.getTopic() + "\r\n";
+
+	send(they.getFd(), msg.c_str(), msg.length(), 0);
+}
+
+void	ft_send_channel_list(Client &they, Channel &ch) {
+	std::set<Client *>::iterator each;// = ch.getClients().begin();
+	each = ch.getClients().begin();
+
+	std::string msg = "ircap 353 " + they.getNick() + " = #" + ch.getName() + " :";
+
+	for (std::set<Client*>::size_type i = 0; i < ch.getClients().size(); i++, each++) {
 		// if (std::find(it->second.getOperators().begin(), it->second.getOperators().end(), each) != e_ops)
 		// if (std::find(s_ops, e_ops, each) != e_ops)
 			// msg += "@";
-		msg += each[i]->getNick() + " ";
+		msg += (*each)->getNick() + " ";
 	}
+
 	msg += "\r\n";
-	send(srv.client_fd, msg.c_str(), msg.length(), 0);
-	msg = "ircap 366 " + srv.client_map[srv.client_fd]->getNick() + " #" + it->first + " :End of /NAMES list\n\r";
+	send(they.getFd(), msg.c_str(), msg.length(), 0);
+	msg = "ircap 366 " + they.getNick() + " #" + ch.getName() + " :End of /NAMES list\n\r";
 }
 
 void	Client::joinChannel(t_server &srv) {
 	std::string tmp, ch_name, key;
-
 
 	if (srv.buffer[5] != '#' && srv.buffer[5] != '&') {
 		tmp = ":" + srv.client_map[srv.client_fd]->getNick() + " wrong join format\r\n";
@@ -61,37 +46,68 @@ void	Client::joinChannel(t_server &srv) {
 		return ; //error but i guess is not possible
 	}
 	
-	std::map<std::string, Channel>::iterator ch_it;
-	std::map<int, Client *>::iterator cl_it = srv.client_map.find(srv.client_fd);
+	Channel *ch;
 	std::istringstream buf(srv.buffer);
 	std::getline(buf, tmp, ' ');
 	std::getline(buf, ch_name, ' ');
 	std::getline(buf, key);
 
 	ch_name.erase(ch_name.begin());
+
 	if (srv.channels.insert(std::pair<std::string, Channel>(ch_name, Channel(ch_name))).second) {
-		ch_it = srv.channels.find(ch_name);
+		ch = &(srv.channels.find(ch_name)->second);
 		if (key.length() > 0)
-			ch_it->second.setKey(key);
-		ch_it->second.addOperator(srv.client_map[srv.client_fd]);
+			ch->setKey(key);
+		ch->addOperator(srv.client_map[srv.client_fd]);
 	}
-	else
-		ch_it = srv.channels.find(ch_name);
-
-
-	if (ch_it->second.getMode(MD_K) && ch_it->second.getKey().compare(key)) {
-		tmp = ":" + cl_it->second->getNick() + " #" + ch_name + " :Cannot join channel (+k)\r\n";
-		send(srv.client_fd, tmp.c_str(), tmp.length(), 0);
-		return ; //send error passwd message
+	else {
+		ch = &(srv.channels.find(ch_name)->second);
+		if (ch->getMode(MD_K) && ch->getKey().compare(key)) {
+			tmp = ":" + this->nickname + " #" + ch_name + " :Cannot join channel (+k)\r\n";
+			send(srv.client_fd, tmp.c_str(), tmp.length(), 0);
+			return ; //send error passwd message
+		}
 	}
 
-	// ch_it->second.addClient(srv.client_map[srv.client_fd]);
-	ch_it->second.addClient(cl_it->second);
-	tmp = ":" + cl_it->second->getNick() + " JOIN #" + ch_name + "\r\n";
-	// std::cout << "Debug: " << srv.buffer[5] << std::endl;
-	ft_send_string_to_channel(ch_it, tmp);
-	ft_send_topic(srv, ch_it);
-	ft_send_channel_list(srv, ch_it);
+	ch->addClient(this);
+
+	// std::set<Client *>::iterator each;//, suca;
+
+	
+	// // ft_send_string_to_channel(*ch, tmp);
+	// each = ch->getClients().begin();
+	// suca = ch->getClients().begin();
+
+	
+	tmp = ":" + this->nickname + " JOIN #" + ch->getName() + "\r\n";
+	for (std::set<Client *>::const_iterator each = ch->_clients.begin(); each != ch->_clients.end(); ++each) {
+		send((*each)->getFd(), tmp.c_str(), tmp.length(), 0);
+	}
+	
+	// tmp = ":" + this->nickname + " JOIN #" + ch->getName() + "\r\n";
+	// for (std::set<Client *>::const_iterator each = ch->_clients.begin(); each != ch->_clients.end(); ++each) {
+	// 	send((*each)->getFd(), tmp.c_str(), tmp.length(), 0);
+	// }
+
+	// (void)suca;
+	// ft_send_topic(*this, *ch);
+
+	// ft_send_channel_list(*this, *ch);
+
+	// each = ch->getClients().begin();
+
+	tmp = "ircap 353 " + this->nickname + " = #" + ch_name + " :";
+
+	// for (std::set<Client *>::const_iterator each = ch->_clients.begin(); each != ch->_clients.end(); ++each) {
+	// 	// if (std::find(it->second.getOperators().begin(), it->second.getOperators().end(), each) != e_ops)
+	// 	// if (std::find(s_ops, e_ops, each) != e_ops)
+	// 		// msg += "@";
+	// 	tmp += (*each)->getNick() + " ";
+	// }
+
+	tmp += "\r\n";
+	send(this->_fd, tmp.c_str(), tmp.length(), 0);
+	tmp = "ircap 366 " + this->nickname + " #" + ch_name + " :End of /NAMES list\n\r";
 }
 
 

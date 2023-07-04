@@ -21,25 +21,25 @@ class Channel {
 		std::string		_name;
 		std::string		_topic;
 		std::string		_key;
-		std::vector<Client*>	_clients;
-		std::vector<Client*>	_operators;
 		bool			_mode[5];
  		
 		Channel(void);
 
 	public:
+		std::set<Client*>	_clients;
+		std::set<Client*>	_operators;
 
 		Channel(std::string const &name);
 		Channel(std::string const &name, std::string const &key);
 		Channel(Channel const &src);
-		virtual ~Channel();
+		~Channel();
 		Channel &operator=(Channel const &rhs);
 
 		std::string		getName() const;
 		std::string		getTopic() const;
 		std::string		getKey() const;
-		std::vector<Client*>	getClients() const;
-		std::vector<Client*>	getOperators() const;
+		std::set<Client*>	getClients() const;
+		std::set<Client*>	getOperators() const;
 		bool			getMode(int const &mode) const;
 
 		void			setTopic(std::string const &topic);

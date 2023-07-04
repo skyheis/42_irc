@@ -13,3 +13,10 @@ Channel names are strings (beginning with specified prefix characters). Apart fr
 
 
 [Title](https://modern.ircdocs.horse/#client-to-server-protocol-structure)
+
+
+
+client send after join:
+
+MODE #baboska
+MODE #baboska +b
