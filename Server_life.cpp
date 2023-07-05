@@ -56,11 +56,11 @@ void	new_cmd_event(t_server &srv, int i) {
 	//Client &sdsadas = map[srv.ev_lst[i].data.fd];
 	//! ------------------- iterate and try to find the client ------------------- */
 	std::map<int, Client*>::iterator it = srv.client_map.find(srv.ev_lst[i].data.fd);
-
 	// srv.client_fd = srv.ev_lst[i].data.fd;
 	srv.client_fd = it->first;
 	int client_fd = it->first;
 	// Client* client = it->second;
+	bzero(srv.buffer, sizeof(srv.buffer));
 	srv.bytes_read = recv(client_fd, srv.buffer, sizeof(srv.buffer), 0);
 	
 
@@ -80,12 +80,13 @@ void	new_cmd_event(t_server &srv, int i) {
 	else
 	{
 		//! ---------------- test to show there is no \r in the buffer --------------- */
-		// char *ptr = std::strchr(srv.buffer, '\r');
-		// if (ptr)
-		// 	std::cout << "ptr: " << ptr << std::endl;
-		// else
-		// 	std::cout << "there is no character found" << std::endl;
-		if (srv.buffer[srv.bytes_read - 1] == '\n')
+		std::cout << "buffer: " << srv.buffer << std::endl;
+		char *ptr = std::strchr(srv.buffer, '\r');
+		if (ptr)
+			std::cout << "ptr: " << ptr << std::endl;
+		else
+			std::cout << "there is no character found" << std::endl;
+		if (srv.buffer[srv.bytes_read - 1] == '\n' || (std::strchr(srv.buffer, '\r') != NULL))
 		{
 			srv.buffer[srv.bytes_read - 1] = '\0';
 
@@ -104,6 +105,9 @@ void	new_cmd_event(t_server &srv, int i) {
 			{
 				std::string konversation = ":";
 				konversation += srv.passwd;
+				std::cout << "arg: " << arg << std::endl;
+				std::cout << "srv.passwd: " << srv.passwd << std::endl;
+				std::cout << "konversation: " << konversation << std::endl;
 				if (arg != srv.passwd && arg != konversation)
 				{
 					std::string wrong = "Err_num(464) Wrong password\r\n";

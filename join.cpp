@@ -38,7 +38,7 @@ void	ft_send_channel_list(Client &they, Channel &ch) {
 }
 
 void	Client::joinChannel(t_server &srv) {
-	std::string tmp, ch_name, key;
+	std::string tmp, ch_name, key, lst_name;
 
 	if (srv.buffer[5] != '#' && srv.buffer[5] != '&') {
 		tmp = ":" + srv.client_map[srv.client_fd]->getNick() + " wrong join format\r\n";
@@ -71,32 +71,36 @@ void	Client::joinChannel(t_server &srv) {
 
 	ch->addClient(this);
 
-	// std::set<Client *>::iterator each;//, suca;
-
 	
-	// // ft_send_string_to_channel(*ch, tmp);
-	// each = ch->getClients().begin();
-	// suca = ch->getClients().begin();
-
 	
 	tmp = ":" + this->nickname + " JOIN #" + ch->getName() + "\r\n";
+	lst_name = "ircap 353 " + this->nickname + " = #" + ch_name + " :";
+	
 	for (std::set<Client *>::const_iterator each = ch->_clients.begin(); each != ch->_clients.end(); ++each) {
 		send((*each)->getFd(), tmp.c_str(), tmp.length(), 0);
+		// if (std::find(it->second.getOperators().begin(), it->second.getOperators().end(), each) != e_ops)
+		// if (std::find(s_ops, e_ops, each) != e_ops)
+			// msg += "@";
+		lst_name += (*each)->getNick() + " ";
 	}
+	
+	ft_send_topic(*this, *ch);
+	
+	lst_name += "\r\n";
+	send(this->_fd, lst_name.c_str(), lst_name.length(), 0);
+	lst_name = "ircap 366 " + this->nickname + " #" + ch_name + " :End of /NAMES list\n\r";
+	
+	
 	
 	// tmp = ":" + this->nickname + " JOIN #" + ch->getName() + "\r\n";
 	// for (std::set<Client *>::const_iterator each = ch->_clients.begin(); each != ch->_clients.end(); ++each) {
 	// 	send((*each)->getFd(), tmp.c_str(), tmp.length(), 0);
 	// }
 
-	// (void)suca;
-	// ft_send_topic(*this, *ch);
-
 	// ft_send_channel_list(*this, *ch);
 
 	// each = ch->getClients().begin();
 
-	tmp = "ircap 353 " + this->nickname + " = #" + ch_name + " :";
 
 	// for (std::set<Client *>::const_iterator each = ch->_clients.begin(); each != ch->_clients.end(); ++each) {
 	// 	// if (std::find(it->second.getOperators().begin(), it->second.getOperators().end(), each) != e_ops)
@@ -105,9 +109,6 @@ void	Client::joinChannel(t_server &srv) {
 	// 	tmp += (*each)->getNick() + " ";
 	// }
 
-	tmp += "\r\n";
-	send(this->_fd, tmp.c_str(), tmp.length(), 0);
-	tmp = "ircap 366 " + this->nickname + " #" + ch_name + " :End of /NAMES list\n\r";
 }
 
 
