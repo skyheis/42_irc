@@ -44,6 +44,7 @@ typedef struct	s_server {
 	std::vector<std::string>		nicknames;
 
 	char		buffer[MAX_BUF];
+	std::string	command;
 	ssize_t 	bytes_read;
 }				t_server;
 

@@ -40,14 +40,14 @@ void	ft_send_channel_list(Client &they, Channel &ch) {
 void	Client::joinChannel(t_server &srv) {
 	std::string tmp, ch_name, key, lst_name;
 
-	if (srv.buffer[5] != '#' && srv.buffer[5] != '&') {
+	if (srv.command[5] != '#' && srv.command[5] != '&') {
 		tmp = ":" + srv.client_map[srv.client_fd]->getNick() + " wrong join format\r\n";
 		send(srv.client_fd, tmp.c_str(), tmp.length(), 0);
 		return ; //error but i guess is not possible
 	}
 	
 	Channel *ch;
-	std::istringstream buf(srv.buffer);
+	std::istringstream buf(srv.command);
 	std::getline(buf, tmp, ' ');
 	std::getline(buf, ch_name, ' ');
 	std::getline(buf, key);

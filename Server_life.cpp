@@ -52,21 +52,49 @@ void new_client_event(t_server &srv) {
 	}
 }
 
+bool process_passwd(t_server &srv, std::map<int, Client*>::iterator &it, std::string &arg) {
+	std::string konversation = ":";
+	konversation += srv.passwd;
+	// std::cout << "arg: " << arg << std::endl;
+	// std::cout << "srv.passwd: " << srv.passwd << std::endl;
+	// std::cout << "konversation: " << konversation << std::endl;
+	if (arg != srv.passwd && arg != konversation)
+	{
+		std::string wrong = "Err_num(464) Wrong password\r\n";
+		send(srv.client_fd, wrong.c_str(), wrong.length(), 0);
+		srv.client_map.erase(it);
+		delete it->second;
+		close(srv.client_fd);
+		return (false);
+	}
+	else
+	{
+		std::string reply = "Welcome to the Internet Relay Network\r\n";
+		send(srv.client_fd, reply.c_str(), reply.length(), 0);
+		srv.client_map[srv.client_fd]->set_authenticate(true);
+	}
+	return (true);
+}
+
+
+
+/* my baby */
+
 void	new_cmd_event(t_server &srv, int i) {
-	//Client &sdsadas = map[srv.ev_lst[i].data.fd];
 	//! ------------------- iterate and try to find the client ------------------- */
 	std::map<int, Client*>::iterator it = srv.client_map.find(srv.ev_lst[i].data.fd);
-	// srv.client_fd = srv.ev_lst[i].data.fd;
 	srv.client_fd = it->first;
-	int client_fd = it->first;
-	// Client* client = it->second;
+
+	// srv.client_fd = srv.ev_lst[i].data.fd;
+	// int client_fd = it->first;
+
 	bzero(srv.buffer, sizeof(srv.buffer));
-	srv.bytes_read = recv(client_fd, srv.buffer, sizeof(srv.buffer), 0);
+	srv.bytes_read = recv(srv.client_fd, srv.buffer, sizeof(srv.buffer), 0);
 	
 
 	if (!srv.bytes_read) {
 		std::cerr << "Connection closed by the client" << std::endl;
-		epoll_ctl(srv.poll_fd, EPOLL_CTL_DEL, client_fd, &srv.ev_lst[i]);
+		epoll_ctl(srv.poll_fd, EPOLL_CTL_DEL, srv.client_fd, &srv.ev_lst[i]);
 		// close(srv.client_fd);/* remove epoll_ctl */
 		//! ------------------- remove from map ------------------- */
 		
@@ -79,65 +107,53 @@ void	new_cmd_event(t_server &srv, int i) {
 		std::cerr << "Error while receving the message" << std::endl;
 	else
 	{
-		//! ---------------- test to show there is no \r in the buffer --------------- */
 		std::cout << "buffer: " << srv.buffer << std::endl;
-		char *ptr = std::strchr(srv.buffer, '\r');
-		if (ptr)
-			std::cout << "ptr: " << ptr << std::endl;
-		else
-			std::cout << "there is no character found" << std::endl;
-		if (srv.buffer[srv.bytes_read - 1] == '\n' || (std::strchr(srv.buffer, '\r') != NULL))
-		{
-			srv.buffer[srv.bytes_read - 1] = '\0';
+		std::istringstream iss_buf(srv.buffer);
+		std::string tmp;
+		std::size_t lngt;
+		bool	passwd_ok;
 
-			std::istringstream iss(srv.buffer);
+		passwd_ok = true;
+		std::getline(iss_buf, srv.command, '\n');
+		lngt = srv.command.length();
+		while (lngt && passwd_ok) {
+			std::cout << "command" << srv.command << std::endl;
+			if (srv.command[lngt - 1] == '\r')
+				srv.command.erase(lngt - 1 ,1);
+			// std::getline(iss_buf, tmp, '\n');
 
-			std::string command, arg;
-			std::getline(iss, command, ' ');
-			std::getline(iss, arg, ' ');
-			if (srv.client_map[client_fd]->get_authenticate() == true)
+			std::istringstream iss(srv.command);
+
+			std::string cmd, arg;
+			std::getline(iss, cmd, ' ');
+			std::getline(iss, arg);
+			if (srv.client_map[srv.client_fd]->get_authenticate() == true)
 			{
-				srv.buffer[srv.bytes_read - 1] = '\0';
-				std::cout << "client send: " << srv.buffer << std::endl;
-				srv.client_map[client_fd]->handleCmd(srv.buffer, srv);
+				// srv.buffer[srv.bytes_read - 1] = '\0';
+				std::cout << "client send: " << srv.command << std::endl;
+				srv.client_map[srv.client_fd]->handleCmd(srv.command, srv);
 			}
-			else if (command == "PASS")
-			{
-				std::string konversation = ":";
-				konversation += srv.passwd;
-				std::cout << "arg: " << arg << std::endl;
-				std::cout << "srv.passwd: " << srv.passwd << std::endl;
-				std::cout << "konversation: " << konversation << std::endl;
-				if (arg != srv.passwd && arg != konversation)
-				{
-					std::string wrong = "Err_num(464) Wrong password\r\n";
-					send(client_fd, wrong.c_str(), wrong.length(), 0);
-					srv.client_map.erase(it);
-					delete it->second;
-					close(client_fd);
-				}
-				else
-				{
-					std::string reply = "Welcome to the Internet Relay Network\r\n";
-					send(client_fd, reply.c_str(), reply.length(), 0);
-					srv.client_map[client_fd]->set_authenticate(true);
-				}
-			// else
-			// {
-			// 	std::string reply = "ERROR :Password required\r\n";
-			// 	send(client_fd, reply.c_str(), reply.length(), 0);
-			// 	close(client_fd);
-			// 	srv.client_map.erase(it);
-			// 	delete it->second;
-			// }
-			}
-			// else
-				
+			else if (cmd == "PASS")
+				passwd_ok = process_passwd(srv, it, arg);
+
+			std::getline(iss_buf, srv.command, '\n');
+			lngt = srv.command.length();
 		}
-		else
-			std::cerr << "Messege recieved is not formated correctly" << std::endl;
+		
+		//! ---------------- test to show there is no \r in the buffer --------------- */
+
+		// if (srv.buffer[srv.bytes_read - 1] == '\n' || (std::strchr(srv.buffer, '\r') != NULL))
+		// {
+		// 	srv.buffer[srv.bytes_read - 1] = '\0';
+
+		// }
+		// else
+		// 	std::cerr << "Messege recieved is not formated correctly" << std::endl;
 	}
 }
+
+
+
 
 void	ft_server_life(t_server &srv) {
 	int	ev_nums;
