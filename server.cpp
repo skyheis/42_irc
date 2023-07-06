@@ -6,7 +6,7 @@
 /*   By: ggiannit <ggiannit@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/28 15:31:16 by ggiannit          #+#    #+#             */
-/*   Updated: 2023/06/30 18:32:51 by ggiannit         ###   ########.fr       */
+/*   Updated: 2023/07/06 18:28:16 by ggiannit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,42 +51,3 @@ int	main(int ac, char **av) {
 // 	close(sock_fd);
 // 	exit(1);
 // }
-
-
-/* from server test */
-/* 	while(server_life) {
-		std::cout << std::endl;
-
-		sockaddr_in client_addr;
-		socklen_t	client_addr_len = sizeof(client_addr);
-		
-		int client_fd = accept(sock_fd, (sockaddr *)&client_addr, &client_addr_len);
-		if (client_fd < 0) {
-			std::cerr << "Failed to accept the client" << std::endl;
-			close(client_fd);
-			continue;
-		}
-
-		char buffer[1024];
-		ssize_t bytes_read = recv(client_fd, buffer, sizeof(buffer), 0);
-		
-		if (!bytes_read)
-			std::cerr << "Connection closed by the client" << std::endl;
-		else if (bytes_read < 0)
-			std::cerr << "Error while receving the message" << std::endl;
-		else {
-			buffer[bytes_read] = '\0';
-			std::cout << "New message from client: " << buffer << std::endl;
-		}
-
-
-		const char *message = "Hello, from server!";
-		ssize_t bytes_sent = send(client_fd, message, strlen(message), 0);
-		
-		if (bytes_sent < 0)
-			std::cerr << "Error while sending the message" << std::endl;
-		else
-			std::cerr << "Message successfully sent!" << std::endl;
-
-		close(client_fd);
-	} */

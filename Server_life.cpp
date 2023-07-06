@@ -81,20 +81,13 @@ bool process_passwd(t_server &srv, std::map<int, Client*>::iterator &it, std::st
 }
 
 
-
-/* my baby */
-
 void	new_cmd_event(t_server &srv, int i) {
 	//! ------------------- iterate and try to find the client ------------------- */
 	std::map<int, Client*>::iterator it = srv.client_map.find(srv.ev_lst[i].data.fd);
 	srv.client_fd = it->first;
 
-	// srv.client_fd = srv.ev_lst[i].data.fd;
-	// int client_fd = it->first;
-
 	bzero(srv.buffer, sizeof(srv.buffer));
 	srv.bytes_read = recv(srv.client_fd, srv.buffer, sizeof(srv.buffer), 0);
-	
 
 	if (!srv.bytes_read) {
 		std::cerr << "Connection closed by the client" << std::endl;
@@ -124,7 +117,6 @@ void	new_cmd_event(t_server &srv, int i) {
 			std::cout << "command" << srv.command << std::endl;
 			if (srv.command[lngt - 1] == '\r')
 				srv.command.erase(lngt - 1 ,1);
-			// std::getline(iss_buf, tmp, '\n');
 
 			std::istringstream iss(srv.command);
 
@@ -133,7 +125,6 @@ void	new_cmd_event(t_server &srv, int i) {
 			std::getline(iss, arg);
 			if (srv.client_map[srv.client_fd]->getAuthenticate() == true)
 			{
-				// srv.buffer[srv.bytes_read - 1] = '\0';
 				std::cout << "client send: " << srv.command << std::endl;
 				srv.client_map[srv.client_fd]->handleCmd(srv.command, srv);
 			}
@@ -143,21 +134,8 @@ void	new_cmd_event(t_server &srv, int i) {
 			std::getline(iss_buf, srv.command, '\n');
 			lngt = srv.command.length();
 		}
-		
-		//! ---------------- test to show there is no \r in the buffer --------------- */
-
-		// if (srv.buffer[srv.bytes_read - 1] == '\n' || (std::strchr(srv.buffer, '\r') != NULL))
-		// {
-		// 	srv.buffer[srv.bytes_read - 1] = '\0';
-
-		// }
-		// else
-		// 	std::cerr << "Messege recieved is not formated correctly" << std::endl;
 	}
 }
-
-
-
 
 void	ft_server_life(t_server &srv) {
 	int	ev_nums;
