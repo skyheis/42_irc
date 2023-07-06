@@ -16,6 +16,10 @@ void	Client::setAuthenticate(bool auth) { _authenticate = auth; }
 
 bool	Client::getAuthenticate() const { return _authenticate; }
 
+void	Client::setOp(bool op) { this->_op = op; }
+
+bool	Client::getOp() const { return (this->_op); }
+
 int			 Client::getFd(void) const { return (this->_fd); }
 
 int			 Client::getIndex(void) const { return (this->index); }
@@ -70,7 +74,7 @@ void	Client::setNick(t_server &srv)
 		std::string reply = "ERROR :No nickname given\r\n";
 		send(_fd, reply.c_str(), reply.length(), 0);
 	}
-	else if(std::find(srv.nicknames.begin(), srv.nicknames.end(), nick) != srv.nicknames.end())
+	else if(srv.nicknames.count(nick))
 	{
 		std::cout << "Err_num(431) nickname provided already used" << std::endl;
 		return ;
@@ -80,7 +84,7 @@ void	Client::setNick(t_server &srv)
 		std::string reply = "Nickname has been set!\r\n";
 		send(_fd, reply.c_str(), reply.length(), 0);
 		nickname = nick;
-		srv.nicknames.push_back(nick);
+		srv.nicknames[nick] = this->_fd;
 	}
 	std::cout << "Nickname: " << nickname << std::endl;
 }

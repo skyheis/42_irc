@@ -2,13 +2,20 @@
 
 void	ft_tochannel(Client &they, t_server &srv, std::string &target, std::string &msg) {
 	msg = ":" + they.getNick() + "!" + " PRIVMSG " + target + " " + msg + "\r\n";
-	
 	target.erase(target.begin());
-	std::set<int>::const_iterator it = srv.channels[target]._clients.begin();
-	std::set<int>::const_iterator end = srv.channels[target]._clients.end();
+	
+	if (!srv.channels.count(target)) {
+		//error no channel;
+		return ;
+	}
+	
+	Channel *ch = &(srv.channels.find(target)->second);
+	std::set<int>::const_iterator it = ch->_clients.begin();
+	std::set<int>::const_iterator end = ch->_clients.end();
 
 	while (it != end) {
-		send((*it), msg.c_str(), msg.length(), 0);
+		if ((*it) != they.getFd())
+			send((*it), msg.c_str(), msg.length(), 0);
 		++it;
 	}
 }
@@ -17,11 +24,18 @@ void	ft_oponly(Client &they, t_server &srv, std::string &target, std::string &ms
 	msg = ":" + they.getNick() + "!" + " PRIVMSG " + target + " " + msg + "\r\n";
 	
 	target.erase(target.begin());
-	std::set<int>::const_iterator it = srv.channels[target]._clients.begin();
-	std::set<int>::const_iterator end = srv.channels[target]._clients.end();
+
+	if (!srv.channels.count(target)) {
+		//error no channel;
+		return ;
+	}
+	
+	Channel *ch = &(srv.channels.find(target)->second);
+	std::set<int>::const_iterator it = ch->_clients.begin();
+	std::set<int>::const_iterator end = ch->_clients.end();
 
 	while (it != end) {
-		if (find(srv.channels[target]._operators.begin(), srv.channels[target]._operators.end(), srv.client_map[(*it)]->getNick()) !=  srv.channels[target]._operators.end())
+		if (ch->_operators.count(srv.client_map[(*it)]->getNick()) && (*it) != they.getFd())
 			send((*it), msg.c_str(), msg.length(), 0);
 		++it;
 	}
@@ -39,7 +53,7 @@ void	Client::privmsg(t_server &srv)
 	std::string tmp, target, msg;
 	std::getline(iss, tmp, ' ');
 	std::getline(iss, target, ' ');
-	std::getline(iss, msg, ' ');
+	std::getline(iss, msg, '\r');
 	
 
 	if (target.empty() || msg.empty())

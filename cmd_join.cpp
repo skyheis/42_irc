@@ -1,5 +1,4 @@
-#include "Client.hpp"
-#include "Channel.hpp"
+#include "Server.hpp"
 
 // std::cout << "Debug: " << *each << std::endl;
 
@@ -18,8 +17,8 @@ void	ft_send_join_and_lsit(Client &they, Channel &ch, t_server &srv, std::string
 	
 	for (std::set<int>::const_iterator each = ch._clients.begin(); each != ch._clients.end(); ++each) {
 		send((*each), tmp.c_str(), tmp.length(), 0);
-		std::cout << "Debug: " << tmp << std::endl;
-		if (std::find(ch._clients.begin(), ch._clients.end(), srv.client_map[(*each)]->getNick()) != ch._clients.end())
+		// std::cout << "Debug: " << tmp << std::endl;
+		if (ch._operators.count(srv.client_map[(*each)]->getNick()))
 			lst_name += "@";
 		lst_name += srv.client_map[(*each)]->getNick() + " ";
 	}
@@ -27,7 +26,7 @@ void	ft_send_join_and_lsit(Client &they, Channel &ch, t_server &srv, std::string
 	lst_name += "\r\n";
 	send(they.getFd(), lst_name.c_str(), lst_name.length(), 0);
 	std::cout << "Debug: " << lst_name << std::endl;
-	lst_name = ":ircap 366 " + they.getNick() + " #" + ch_name + " :End of /NAMES list\n\r";	
+	lst_name = "ircap 366 " + they.getNick() + " #" + ch_name + " :End of /NAMES list\n\r";	
 }
 
 int		ft_checkname(t_server &srv) {

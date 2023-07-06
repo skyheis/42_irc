@@ -41,7 +41,7 @@ typedef struct	s_server {
 
 	std::map<int, Client*>			client_map;
 	std::map<std::string, Channel>	channels;
-	std::vector<std::string>		nicknames;
+	std::map<std::string, int>		nicknames;
 
 	char		buffer[MAX_BUF];
 	std::string	command;

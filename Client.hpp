@@ -16,6 +16,7 @@ class Client
 		int			_fd;
 		int			index;
 		bool 		_authenticate;
+		bool		_op;
 		std::string	username;
 		std::string	realname;
 		std::string nickname;
@@ -28,6 +29,9 @@ class Client
 
 		void	setAuthenticate(bool auth);
 		bool	getAuthenticate() const ;
+		void	setOp(bool op);
+		bool	getOp() const ;
+
 
 		void	handleCmd(std::string str, t_server &srv);
 
