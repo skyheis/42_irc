@@ -24,6 +24,10 @@ void console_event(t_server &srv) {
 	std::cin >> srv.buffer;
 	if (!strcmp(srv.buffer, "quit") || !strcmp(srv.buffer, "exit"))
 		server_exit(srv, 1);
+	else if (!strcmp(srv.buffer, "clients"))
+		printClients(srv);
+	else if (!strcmp(srv.buffer, "channels"))
+		printChannels(srv);
 }
 
 void new_client_event(t_server &srv) {
@@ -71,7 +75,7 @@ bool process_passwd(t_server &srv, std::map<int, Client*>::iterator &it, std::st
 	{
 		std::string reply = "Welcome to the Internet Relay Network\r\n";
 		send(srv.client_fd, reply.c_str(), reply.length(), 0);
-		srv.client_map[srv.client_fd]->set_authenticate(true);
+		srv.client_map[srv.client_fd]->setAuthenticate(true);
 	}
 	return (true);
 }
@@ -127,7 +131,7 @@ void	new_cmd_event(t_server &srv, int i) {
 			std::string cmd, arg;
 			std::getline(iss, cmd, ' ');
 			std::getline(iss, arg);
-			if (srv.client_map[srv.client_fd]->get_authenticate() == true)
+			if (srv.client_map[srv.client_fd]->getAuthenticate() == true)
 			{
 				// srv.buffer[srv.bytes_read - 1] = '\0';
 				std::cout << "client send: " << srv.command << std::endl;

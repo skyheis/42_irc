@@ -51,3 +51,5 @@ typedef struct	s_server {
 
 void	init_server(std::string const &port, std::string const &passwd, t_server &srv);
 void	ft_server_life(t_server &srv);
+void	printClients(t_server &srv);
+void	printChannels(t_server &srv);

@@ -44,12 +44,12 @@ std::string		Channel::getKey() const {
 	return (_key);
 }
 
-std::set<Client*>	Channel::getClients() const {
-	return (_clients);
+std::set<int>			Channel::getClients() const {
+	return (this->_clients);
 }
 
-std::set<Client*>	Channel::getOperators() const {
-	return (_operators);
+std::set<std::string>	Channel::getOperators() const {
+	return (this->_operators);
 }
 
 bool			Channel::getMode(int const &mode) const {
@@ -65,11 +65,11 @@ void	Channel::setMode(int const &mode, bool const &value) {
 	this->_mode[mode] = value;
 }
 
-void	Channel::addClient(Client *client) {
+void	Channel::addClient(int client) {
 	this->_clients.insert(client);
 }
 
-void	Channel::addOperator(Client *client) {
+void	Channel::addOperator(std::string &client) {
 	this->_operators.insert(client);
 }
 

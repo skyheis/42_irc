@@ -2,7 +2,8 @@
 
 NAME = server
 
-SRC = server.cpp Server_init.cpp Server_life.cpp Client.cpp Channel.cpp join.cpp
+SRC = server.cpp Server_init.cpp Server_life.cpp Client.cpp Channel.cpp \
+	join.cpp debugger.cpp
 
 OBJ = $(SRC:.cpp=.o)
 

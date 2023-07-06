@@ -27,13 +27,19 @@ static void bind_and_listen_socket(t_server &srv) {
 	int	result;
 	
 	result = bind(srv.socket, (sockaddr *)&srv.addr, sizeof(srv.addr));
-	if (result)
+	if (result) {
 		perror("Bind socket error");
+		close(sock_fd);
+		exit(1);
+	}
 	std::cout << "Socket bound to address" << std::endl;
 
 	result = listen(srv.socket, 128);
-	if (result)
+	if (result) {
 		perror("Listen error");
+		close(sock_fd);
+		exit(1);
+	}
 	std::cout << "Socket ready to listen for connections" << std::endl;	
 }
 

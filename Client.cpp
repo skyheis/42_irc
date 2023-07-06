@@ -1,10 +1,35 @@
 #include "Client.hpp"
 
-Client::Client(int const &fd, int index) : _fd(fd) , index(index) , _authenticate(false) {}
+Client::Client(int const &fd, int index) : _fd(fd) , index(index) , _authenticate(false) {
+	this->mappings["USER"] = &Client::setUser;
+	this->mappings["NICK"] = &Client::setNick;
+	this->mappings["JOIN"] = &Client::joinChannel;
+	// this->mappings["KICK"] = &Client::kickUser;
+	// this->mappings["PRIVMSG"] = &Client::privmsg;
+	// this->mappings["QUIT"] = &Client::quit;
+	// this->mappings["INVITE"] = &Client::invite;
+	// this->mappings["TOPIC"] = &Client::topic;
+	// this->mappings["MODE"] = &Client::mode;
+}
 
-void	Client::set_authenticate(bool auth) { _authenticate = auth; }
+void	Client::setAuthenticate(bool auth) { _authenticate = auth; }
 
-bool	Client::get_authenticate() const { return _authenticate; }
+bool	Client::getAuthenticate() const { return _authenticate; }
+
+int			 Client::getFd(void) const { return (this->_fd); }
+
+int			 Client::getIndex(void) const { return (this->index); }
+
+std::string	 Client::getUsername(void) const { return (this->username); }
+
+std::string	 Client::getNick(void) const { return (this->nickname); }
+
+std::string	 Client::getRealname(void) const { return (this->realname); }
+
+std::string	 Client::getPasswd(void) const { return (this->passwd); }
+
+std::string	 Client::getBuf(void) const { return (this->buf); }
+
 
 void	Client::setUser(t_server &srv)
 {
@@ -63,24 +88,14 @@ void	Client::setNick(t_server &srv)
 void	Client::handleCmd(std::string str, t_server &srv)
 {
 	buf = str;
-	std::map<std::string, void(Client::*)(t_server &srv)> mappings;
-	mappings["USER"] = &Client::setUser;
-	mappings["NICK"] = &Client::setNick;
-	mappings["JOIN"] = &Client::joinChannel;
-	// mappings["KICK"] = &Client::kickUser;
-	// mappings["PRIVMSG"] = &Client::privmsg;
-	// mappings["QUIT"] = &Client::quit;
-	// mappings["INVITE"] = &Client::invite;
-	// mappings["TOPIC"] = &Client::topic;
-	// mappings["MODE"] = &Client::mode;
 
 	std::istringstream iss(str);
 	std::string command, arg;
 	std::getline(iss, command, ' ');
 	std::getline(iss, arg, '\0');
 
-	std::map<std::string, void(Client::*)(t_server &srv)>::iterator it = mappings.find(command);
-	if(it != mappings.end())
+	std::map<std::string, void(Client::*)(t_server &srv)>::iterator it = this->mappings.find(command);
+	if(it != this->mappings.end())
 	{
 		std::cout << "\033[32mClient:\033[0m " << index << " " << "\033[34mcommand:\033[0m " << command << " \033[33margs:\033[0m " << arg << std::endl;
 		(this->*(it->second))(srv);
@@ -90,12 +105,4 @@ void	Client::handleCmd(std::string str, t_server &srv)
 }
 
 Client::~Client() {}
-
-std::string	Client::getNick(void) const {
-	return (this->nickname);
-}
-
-int Client::getFd(void) const {
-	return (this->_fd);
-}
 
