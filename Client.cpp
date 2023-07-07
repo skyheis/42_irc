@@ -1,18 +1,19 @@
 #include "Client.hpp"
 
-Client::Client(int const &fd, int index) : _fd(fd) , index(index) , _authenticate(false) {
+Client::Client(int const &fd, int index) : _fd(fd) , index(index) , _authenticate(false)
+{
 	this->mappings["USER"] = &Client::setUser;
 	this->mappings["NICK"] = &Client::setNick;
 	this->mappings["JOIN"] = &Client::joinChannel;
+	this->mappings["MODE"] = &Client::init_operator;
 	// this->mappings["KICK"] = &Client::kickUser;
 	this->mappings["PRIVMSG"] = &Client::privmsg;
 	// this->mappings["QUIT"] = &Client::quit;
 	// this->mappings["INVITE"] = &Client::invite;
 	// this->mappings["TOPIC"] = &Client::topic;
-	// this->mappings["MODE"] = &Client::mode;
 }
 
-void	Client::setAuthenticate(bool auth) { _authenticate = auth; }
+void		Client::setAuthenticate(bool auth) { _authenticate = auth; }
 
 bool	Client::getAuthenticate() const { return _authenticate; }
 
@@ -34,6 +35,45 @@ std::string	 Client::getPasswd(void) const { return (this->passwd); }
 
 std::string	 Client::getBuf(void) const { return (this->buf); }
 
+void	Client::init_operator(t_server &srv)
+{
+	(void)srv;
+	// /mode #channel +o nickname
+	std::istringstream iss(buf);
+	std::string command, channel, mode, nickname;
+	std::getline(iss, command, ' ');
+	std::getline(iss, channel, ' ');
+	std::getline(iss, mode, ' ');
+	std::getline(iss, nickname, ' ');
+	std::string new_nickname = "@" + nickname;
+
+	if (mode != "+o" || nickname.empty())
+	{
+		std::string reply = "ERROR :No username\r\n";
+		send(_fd, reply.c_str(), reply.length(), 0);
+		return ;
+		//! check if you need to disconnect the client
+	}
+	else
+	{
+		std::string reply = "Username and password have been set!\r\n";
+		send(_fd, reply.c_str(), reply.length(), 0);
+		std::map<std::string, Channel>::iterator it = srv.channels.find(channel);
+		if (it != srv.channels.end())
+			it->second.addOperator(new_nickname);
+		else
+		{
+			//TODO Handle the situation where the channel doesn't exist in the map
+		}
+		srv.nicknames[new_nickname] = srv.nicknames[nickname];
+		srv.nicknames.erase(nickname);
+	}
+	//? check if the client is already an operator
+	//? change the nickname to be prefixed with an @
+	//? check if the client is in the channel
+	//? check if you need to send a msg when a clinet becomes an operator
+	//? check for the real command 
+}
 
 void	Client::setUser(t_server &srv)
 {
@@ -58,6 +98,7 @@ void	Client::setUser(t_server &srv)
 		username = user;
 		realname = real;
 	}
+	//! -------------------------------- debugger -------------------------------- */
 	// std::cout << "Username: " << username << std::endl;
 	// std::cout << "Realname: " << realname << std::endl;
 }
@@ -76,7 +117,12 @@ void	Client::setNick(t_server &srv)
 	}
 	else if(srv.nicknames.count(nick))
 	{
-		std::cout << "Err_num(431) nickname provided already used" << std::endl;
+		std::string out = "Err_num(431) nickname provided already used\r\n";
+		send(_fd, out.c_str(), out.length(), 0);
+		std::string dis = "Disconnected ()\r\n";
+		send(_fd, dis.c_str(), dis.length(), 0);
+		srv.check = false;
+		close(srv.client_fd);
 		return ;
 	}
 	else
@@ -86,7 +132,8 @@ void	Client::setNick(t_server &srv)
 		nickname = nick;
 		srv.nicknames[nick] = this->_fd;
 	}
-	std::cout << "Nickname: " << nickname << std::endl;
+	//! ---------------------------------- debug --------------------------------- */
+	// std::cout << "Nickname: " << nickname << std::endl;
 }
 
 void	Client::handleCmd(std::string str, t_server &srv)
@@ -97,6 +144,8 @@ void	Client::handleCmd(std::string str, t_server &srv)
 	std::string command, arg;
 	std::getline(iss, command, ' ');
 	std::getline(iss, arg, '\0');
+	if (command == "mode")
+		command = "MODE";
 
 	std::map<std::string, void(Client::*)(t_server &srv)>::iterator it = this->mappings.find(command);
 	if(it != this->mappings.end())
@@ -109,4 +158,3 @@ void	Client::handleCmd(std::string str, t_server &srv)
 }
 
 Client::~Client() {}
-

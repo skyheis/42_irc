@@ -81,7 +81,12 @@ bool process_passwd(t_server &srv, std::map<int, Client*>::iterator &it, std::st
 }
 
 
-void	new_cmd_event(t_server &srv, int i) {
+
+/* my baby */
+
+void	new_cmd_event(t_server &srv, int i)
+{
+	srv.check = true;
 	//! ------------------- iterate and try to find the client ------------------- */
 	std::map<int, Client*>::iterator it = srv.client_map.find(srv.ev_lst[i].data.fd);
 	srv.client_fd = it->first;
@@ -113,7 +118,7 @@ void	new_cmd_event(t_server &srv, int i) {
 		passwd_ok = true;
 		std::getline(iss_buf, srv.command, '\n');
 		lngt = srv.command.length();
-		while (lngt && passwd_ok) {
+		while (lngt && passwd_ok && srv.check) {
 			std::cout << "command" << srv.command << std::endl;
 			if (srv.command[lngt - 1] == '\r')
 				srv.command.erase(lngt - 1 ,1);

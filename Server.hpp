@@ -26,18 +26,20 @@ class Channel;
 extern int sock_fd;
 extern int	server_life;
 
-typedef struct	s_server {
+typedef struct	s_server
+{
 	int			socket;
 	in_port_t	port;
 	sockaddr_in	addr;
 	std::string	passwd;
 	int			poll_fd;
 	epoll_event	ev_def;
-	epoll_event ev_lst[MAX_EVENTS];
+	epoll_event	ev_lst[MAX_EVENTS];
 	int			ev_nums;
 	int			client_fd;
 	sockaddr_in client_addr;
 	socklen_t	client_addr_len;
+	bool 		check;
 
 	std::map<int, Client*>			client_map;
 	std::map<std::string, Channel>	channels;
