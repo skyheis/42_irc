@@ -47,7 +47,7 @@ class Client
 		void	setNick(t_server &srv);
 		void	joinChannel(t_server &srv);
 		void	init_operator(t_server &srv);
-		// void	kickUser();
+		void	kickUser(t_server &srv);
 		void	privmsg(t_server &srv);
 		// void	quit();
 		// void	invite();

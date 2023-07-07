@@ -6,7 +6,7 @@ Client::Client(int const &fd, int index) : _fd(fd) , index(index) , _authenticat
 	this->mappings["NICK"] = &Client::setNick;
 	this->mappings["JOIN"] = &Client::joinChannel;
 	this->mappings["MODE"] = &Client::init_operator;
-	// this->mappings["KICK"] = &Client::kickUser;
+	this->mappings["KICK"] = &Client::kickUser;
 	this->mappings["PRIVMSG"] = &Client::privmsg;
 	// this->mappings["QUIT"] = &Client::quit;
 	// this->mappings["INVITE"] = &Client::invite;

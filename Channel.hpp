@@ -50,6 +50,7 @@ class Channel {
 		void			setMode(int const &mode, bool const &value);
 		void			addClient(int client);
 		void			addOperator(std::string &client);
+		void			addInvited(std::string &client);
 		void			removeClient(int client);
 		void			removeOperator(std::string &client);
 		void			sendMsg(std::string const &msg);
