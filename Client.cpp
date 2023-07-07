@@ -37,39 +37,46 @@ std::string	 Client::getBuf(void) const { return (this->buf); }
 
 void	Client::init_operator(t_server &srv)
 {
+	// /mode #channel +o cmd_nickname
 	(void)srv;
-	// /mode #channel +o nickname
 	std::istringstream iss(buf);
-	std::string command, channel, mode, nickname;
+	std::string command, channel, mode, cmd_nickname;
 	std::getline(iss, command, ' ');
 	std::getline(iss, channel, ' ');
 	std::getline(iss, mode, ' ');
-	std::getline(iss, nickname, ' ');
+	std::getline(iss, cmd_nickname, ' ');
 
-	if (mode != "+o" || nickname.empty())
+	if ((mode != "+o" && mode != "-o") || cmd_nickname.empty())
 	{
+		//TODO: check if you need to disconnect the client or send a msg
 		// std::string reply = "ERROR :No username\r\n";
 		// send(_fd, reply.c_str(), reply.length(), 0);
 		return ;
-		//! check if you need to disconnect the client
 	}
-	else
+	else if (mode == "+o")
 	{
+		if (cmd_nickname == nickname)
+		{
+			//TODO: checked if the client is the same
+			//TODO: check if in this case you need to send a msg
+		}
+		//TODO: check if you need to send a msg
 		// std::string reply = "Username and password have been set!\r\n";
 		// send(_fd, reply.c_str(), reply.length(), 0);
 		std::map<std::string, Channel>::iterator it = srv.channels.find(channel);
 		if (it != srv.channels.end())
-			it->second.addOperator(nickname);
+			it->second.addOperator(cmd_nickname);
 		else
 		{
 			//TODO Handle the situation where the channel doesn't exist in the map
 		}
 	}
-	//? check if the client is already an operator
-	//? change the nickname to be prefixed with an @
-	//? check if the client is in the channel
-	//? check if you need to send a msg when a clinet becomes an operator
-	//? check for the real command 
+	else if (mode == "-o")
+	{
+		std::map<std::string, Channel>::iterator it = srv.channels.find(channel);
+		if (it != srv.channels.end())
+			it->second.removeOperator(cmd_nickname);
+	}
 }
 
 void	Client::setUser(t_server &srv)
@@ -133,6 +140,59 @@ void	Client::setNick(t_server &srv)
 	// std::cout << "Nickname: " << nickname << std::endl;
 }
 
+void	Client::checkOption(t_server &srv)
+{
+	std::istringstream iss(buf);
+	std::string command, channel, option;
+	std::getline(iss, command, ' ');
+	std::getline(iss, channel, ' ');
+	std::getline(iss, option, '\0');
+
+	if (srv.channels[channel]._operators.count(nickname))
+	{
+		if (option == "+o")
+			setUser(srv);
+		else if (option == "-o")
+			setUser(srv);
+		else if (option == "+i") //TODO: Set/remove Invite-only channel
+		{
+			srv.channels[channel].setMode(MD_I, true);
+		}
+		else if (option == "-i")
+		{
+			
+		}
+		else if (option == "+t") //TODO: Set/remove the restrictions of the TOPIC command to channel operators
+		{
+			srv.channels[channel].setMode(MD_T, true);
+		}
+		else if (option == "-t")
+		{
+		}
+		else if (option == "+k") //TODO: Set/remove the channel key (password)
+		{
+			srv.channels[channel].setMode(MD_K, true);
+		}
+		else if (option == "-k")
+		{
+		}
+		else if (option == "+l") //TODO: Set/remove the user limit to channel
+		{
+			srv.channels[channel].setMode(MD_L, true);
+		}
+		else if (option == "-l")
+		{
+		}
+		else
+			return ;
+	}
+	else
+	{
+		std::string reply = "You are not an operator\r\n";
+		send(_fd, reply.c_str(), reply.length(), 0);
+	}
+}
+
 void	Client::handleCmd(std::string str, t_server &srv)
 {
 	buf = str;
@@ -143,7 +203,8 @@ void	Client::handleCmd(std::string str, t_server &srv)
 	std::getline(iss, arg, '\0');
 	if (command == "mode")
 		command = "MODE";
-
+	if (command == "MODE")
+		checkOption(srv);
 	std::map<std::string, void(Client::*)(t_server &srv)>::iterator it = this->mappings.find(command);
 	if(it != this->mappings.end())
 	{

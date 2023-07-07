@@ -8,8 +8,7 @@
 #define MD_I	0
 #define MD_T	1
 #define MD_K	2
-#define MD_O	3
-#define MD_L	4
+#define MD_L	3
 
 class	Client;
 struct	s_server;
@@ -21,7 +20,7 @@ class Channel {
 		std::string		_name;
 		std::string		_topic;
 		std::string		_key;
-		bool			_mode[5];
+		bool			_mode[4];
  		
 		Channel(void);
 
@@ -30,6 +29,7 @@ class Channel {
 		// std::set<Client*>	_operators;
 		std::set<int>			_clients;
 		std::set<std::string>	_operators;
+		std::set<std::string>	_invited;
 
 
 		Channel(std::string const &name);
@@ -53,5 +53,4 @@ class Channel {
 		void			removeClient(int client);
 		void			removeOperator(std::string &client);
 		void			sendMsg(std::string const &msg);
-
 };

@@ -54,5 +54,7 @@ class Client
 		// void	topic();
 		// void	mode();
 
+		void			checkOption(t_server &srv);
+
 		~Client();
 };

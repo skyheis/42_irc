@@ -6,7 +6,6 @@ Channel::Channel(std::string const &name) : _name(name) , _topic("is topic a top
 	_mode[MD_I] = false;
 	_mode[MD_T] = false;
 	_mode[MD_K] = false;
-	_mode[MD_O] = false;
 	_mode[MD_L] = false;
 }
 
@@ -26,7 +25,6 @@ Channel &Channel::operator=(Channel const &rhs) {
 		_mode[MD_I] = rhs._mode[MD_I];
 		_mode[MD_T] = rhs._mode[MD_T];
 		_mode[MD_K] = rhs._mode[MD_K];
-		_mode[MD_O] = rhs._mode[MD_O];
 		_mode[MD_L] = rhs._mode[MD_L];
 	}
 	return (*this);
@@ -71,6 +69,11 @@ void	Channel::addClient(int client) {
 
 void	Channel::addOperator(std::string &client) {
 	this->_operators.insert(client);
+}
+
+void	Channel::removeOperator(std::string &client)
+{
+	this->_operators.erase(client);
 }
 
 //if is operator
