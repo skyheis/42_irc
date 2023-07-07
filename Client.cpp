@@ -45,28 +45,25 @@ void	Client::init_operator(t_server &srv)
 	std::getline(iss, channel, ' ');
 	std::getline(iss, mode, ' ');
 	std::getline(iss, nickname, ' ');
-	std::string new_nickname = "@" + nickname;
 
 	if (mode != "+o" || nickname.empty())
 	{
-		std::string reply = "ERROR :No username\r\n";
-		send(_fd, reply.c_str(), reply.length(), 0);
+		// std::string reply = "ERROR :No username\r\n";
+		// send(_fd, reply.c_str(), reply.length(), 0);
 		return ;
 		//! check if you need to disconnect the client
 	}
 	else
 	{
-		std::string reply = "Username and password have been set!\r\n";
-		send(_fd, reply.c_str(), reply.length(), 0);
+		// std::string reply = "Username and password have been set!\r\n";
+		// send(_fd, reply.c_str(), reply.length(), 0);
 		std::map<std::string, Channel>::iterator it = srv.channels.find(channel);
 		if (it != srv.channels.end())
-			it->second.addOperator(new_nickname);
+			it->second.addOperator(nickname);
 		else
 		{
 			//TODO Handle the situation where the channel doesn't exist in the map
 		}
-		srv.nicknames[new_nickname] = srv.nicknames[nickname];
-		srv.nicknames.erase(nickname);
 	}
 	//? check if the client is already an operator
 	//? change the nickname to be prefixed with an @
