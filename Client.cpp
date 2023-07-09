@@ -140,58 +140,58 @@ void	Client::setNick(t_server &srv)
 	// std::cout << "Nickname: " << nickname << std::endl;
 }
 
-void	Client::checkOption(t_server &srv)
-{
-	std::istringstream iss(buf);
-	std::string command, channel, option;
-	std::getline(iss, command, ' ');
-	std::getline(iss, channel, ' ');
-	std::getline(iss, option, '\0');
+void	Client::checkOption(t_server &srv) {}
+// {
+// 	std::istringstream iss(buf);
+// 	std::string command, channel, option;
+// 	std::getline(iss, command, ' ');
+// 	std::getline(iss, channel, ' ');
+// 	std::getline(iss, option, '\0');
 
-	if (srv.channels[channel]._operators.count(nickname))
-	{
-		if (option == "+o")
-			setUser(srv);
-		else if (option == "-o")
-			setUser(srv);
-		else if (option == "+i") //TODO: Set/remove Invite-only channel
-		{
-			srv.channels[channel].setMode(MD_I, true);
-		}
-		else if (option == "-i")
-		{
+// 	if (srv.channels[channel]._operators.count(nickname))
+// 	{
+// 		if (option == "+o")
+// 			setUser(srv);
+// 		else if (option == "-o")
+// 			setUser(srv);
+// 		else if (option == "+i") //TODO: Set/remove Invite-only channel
+// 		{
+// 			srv.channels[channel].setMode(MD_I, true);
+// 		}
+// 		else if (option == "-i")
+// 		{
 			
-		}
-		else if (option == "+t") //TODO: Set/remove the restrictions of the TOPIC command to channel operators
-		{
-			srv.channels[channel].setMode(MD_T, true);
-		}
-		else if (option == "-t")
-		{
-		}
-		else if (option == "+k") //TODO: Set/remove the channel key (password)
-		{
-			srv.channels[channel].setMode(MD_K, true);
-		}
-		else if (option == "-k")
-		{
-		}
-		else if (option == "+l") //TODO: Set/remove the user limit to channel
-		{
-			srv.channels[channel].setMode(MD_L, true);
-		}
-		else if (option == "-l")
-		{
-		}
-		else
-			return ;
-	}
-	else
-	{
-		std::string reply = "You are not an operator\r\n";
-		send(_fd, reply.c_str(), reply.length(), 0);
-	}
-}
+// 		}
+// 		else if (option == "+t") //TODO: Set/remove the restrictions of the TOPIC command to channel operators
+// 		{
+// 			srv.channels[channel].setMode(MD_T, true);
+// 		}
+// 		else if (option == "-t")
+// 		{
+// 		}
+// 		else if (option == "+k") //TODO: Set/remove the channel key (password)
+// 		{
+// 			srv.channels[channel].setMode(MD_K, true);
+// 		}
+// 		else if (option == "-k")
+// 		{
+// 		}
+// 		else if (option == "+l") //TODO: Set/remove the user limit to channel
+// 		{
+// 			srv.channels[channel].setMode(MD_L, true);
+// 		}
+// 		else if (option == "-l")
+// 		{
+// 		}
+// 		else
+// 			return ;
+// 	}
+// 	else
+// 	{
+// 		std::string reply = "You are not an operator\r\n";
+// 		send(_fd, reply.c_str(), reply.length(), 0);
+// 	}
+// }
 
 void	Client::handleCmd(std::string str, t_server &srv)
 {
