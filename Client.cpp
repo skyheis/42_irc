@@ -140,7 +140,7 @@ void	Client::setNick(t_server &srv)
 	// std::cout << "Nickname: " << nickname << std::endl;
 }
 
-void	Client::checkOption(t_server &srv) {}
+void	Client::checkOption(t_server &srv) { (void)srv; }
 // {
 // 	std::istringstream iss(buf);
 // 	std::string command, channel, option;

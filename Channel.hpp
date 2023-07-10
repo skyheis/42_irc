@@ -8,7 +8,8 @@
 #define MD_I	0
 #define MD_T	1
 #define MD_K	2
-#define MD_L	3
+#define MD_O	3
+#define MD_L	4
 
 class	Client;
 struct	s_server;
