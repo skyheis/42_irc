@@ -1,15 +1,31 @@
 #include "Server.hpp"
 
+bool	ft_is_inchannel(Channel &ch, int fd_cli) {
+	if (ch._clients.count(fd_cli))
+		return (true);
+	return (false);
+}
+
 void	ft_tochannel(Client &they, t_server &srv, std::string &target, std::string &msg) {
-	msg = ":" + they.getNick() + "!" + " PRIVMSG " + target + " " + msg + "\r\n";
+	
 	target.erase(target.begin());
 	
 	if (!srv.channels.count(target)) {
-		//error no channel;
+		msg = ":ircap 403 " + they.getNick() + " #" + target + " :No such channel\r\n";
+		send(they.getFd(), msg.c_str(), msg.length(), 0);
 		return ;
 	}
 	
 	Channel *ch = &(srv.channels.find(target)->second);
+
+	if (!ft_is_inchannel(*ch, they.getFd())) {
+		msg = ":ircap 442 " + they.getNick() + " #" + target + " :You're not on that channel\r\n";
+		send(they.getFd(), msg.c_str(), msg.length(), 0);
+		return ;
+	}
+
+	msg = ":" + they.getNick() + "!" + " PRIVMSG #" + target + " " + msg + "\r\n";
+
 	std::set<int>::const_iterator it = ch->_clients.begin();
 	std::set<int>::const_iterator end = ch->_clients.end();
 
@@ -21,16 +37,25 @@ void	ft_tochannel(Client &they, t_server &srv, std::string &target, std::string 
 }
 
 void	ft_oponly(Client &they, t_server &srv, std::string &target, std::string &msg) {
-	msg = ":" + they.getNick() + "!" + " PRIVMSG " + target + " " + msg + "\r\n";
 	
 	target.erase(target.begin());
 
 	if (!srv.channels.count(target)) {
-		//error no channel;
+		msg = ":ircap 403 " + they.getNick() + " #" + target + " :No such channel\r\n";
+		send(they.getFd(), msg.c_str(), msg.length(), 0);
 		return ;
 	}
 	
 	Channel *ch = &(srv.channels.find(target)->second);
+	
+	if (!ft_is_inchannel(*ch, they.getFd())) {
+		msg = ":ircap 442 " + they.getNick() + " #" + target + " :You're not on that channel\r\n";
+		send(they.getFd(), msg.c_str(), msg.length(), 0);
+		return ;
+	}
+
+	msg = ":" + they.getNick() + "!" + " PRIVMSG #" + target + " " + msg + "\r\n";
+	
 	std::set<int>::const_iterator it = ch->_clients.begin();
 	std::set<int>::const_iterator end = ch->_clients.end();
 
@@ -60,7 +85,7 @@ void	Client::privmsg(t_server &srv)
 	{
 		tmp = "ERROR :No target or message given\r\n";
 		send(this->_fd, tmp.c_str(), tmp.length(), 0);
-		return ; //error?
+		return ;
 	}
 
 	if (target[0] == '@' && target[1] == '#')
@@ -72,7 +97,7 @@ void	Client::privmsg(t_server &srv)
 	else {
 		tmp = "ERROR :No target or message given\r\n";
 		send(this->_fd, tmp.c_str(), tmp.length(), 0);
-		return ; //error?
+		return ;
 	}
 	// else
 	// {
