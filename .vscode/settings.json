@@ -57,6 +57,8 @@
 		"stop_token": "cpp",
 		"thread": "cpp",
 		"map": "cpp",
-		"set": "cpp"
+		"set": "cpp",
+		"numbers": "cpp",
+		"semaphore": "cpp"
 	}
 }

@@ -68,6 +68,6 @@ void	Client::joinChannel(t_server &srv) {
 
 	ch->addClient(srv.client_fd);
 
-	ft_send_topic(*this, *ch);
 	ft_send_join_and_lsit(*this, *ch, srv, ch_name);
+	ft_send_topic(*this, *ch);
 }

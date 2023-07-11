@@ -51,7 +51,7 @@ class Client
 		void	privmsg(t_server &srv);
 		// void	quit();
 		// void	invite();
-		// void	topic();
+		void	topic(t_server &srv);
 		// void	mode();
 
 		void			checkOption(t_server &srv);

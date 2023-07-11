@@ -54,6 +54,10 @@ bool			Channel::getMode(int const &mode) const {
 	return (_mode)[mode];
 }
 
+void	Channel::setTopic(std::string const &topic) {
+	this->_topic = topic;
+}
+
 void	Channel::setKey(std::string const &key) {
 	this->_key = key;
 	this->setMode(MD_K, true);
