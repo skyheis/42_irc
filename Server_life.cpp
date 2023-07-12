@@ -81,7 +81,6 @@ bool process_passwd(t_server &srv, std::map<int, Client*>::iterator &it, std::st
 }
 
 
-
 /* my baby */
 
 void	new_cmd_event(t_server &srv, int i)
@@ -95,15 +94,16 @@ void	new_cmd_event(t_server &srv, int i)
 	srv.bytes_read = recv(srv.client_fd, srv.buffer, sizeof(srv.buffer), 0);
 
 	if (!srv.bytes_read) {
-		std::cerr << "Connection closed by the client" << std::endl;
-		epoll_ctl(srv.poll_fd, EPOLL_CTL_DEL, srv.client_fd, &srv.ev_lst[i]);
-		// close(srv.client_fd);/* remove epoll_ctl */
-		//! ------------------- remove from map ------------------- */
+		// std::cerr << "Connection closed by the client" << std::endl;
+		ft_client_quit(srv, i);
+		// epoll_ctl(srv.poll_fd, EPOLL_CTL_DEL, srv.client_fd, &srv.ev_lst[i]);
+		// // close(srv.client_fd);/* remove epoll_ctl */
+		// //! ------------------- remove from map ------------------- */
 		
-		//send disconect to all channels and remove from all channels
-
-		srv.client_map.erase(it);
-		delete it->second;
+		// //send disconect to all channels and remove from all channels
+		
+		// srv.client_map.erase(it);
+		// delete it->second;
 	}
 	else if (srv.bytes_read < 0)
 		std::cerr << "Error while receving the message" << std::endl;
@@ -128,7 +128,9 @@ void	new_cmd_event(t_server &srv, int i)
 			std::string cmd, arg;
 			std::getline(iss, cmd, ' ');
 			std::getline(iss, arg);
-			if (srv.client_map[srv.client_fd]->getAuthenticate() == true)
+			if (cmd == "QUIT")
+				ft_client_quit(srv, i);
+			else if (srv.client_map[srv.client_fd]->getAuthenticate() == true)
 			{
 				std::cout << "client send: " << srv.command << std::endl;
 				srv.client_map[srv.client_fd]->handleCmd(srv.command, srv);

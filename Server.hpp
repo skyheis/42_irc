@@ -55,3 +55,4 @@ void	init_server(std::string const &port, std::string const &passwd, t_server &s
 void	ft_server_life(t_server &srv);
 void	printClients(t_server &srv);
 void	printChannels(t_server &srv);
+void	ft_client_quit(t_server &srv, int i);

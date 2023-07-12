@@ -49,7 +49,7 @@ class Client
 		void	init_operator(t_server &srv);
 		void	kickUser(t_server &srv);
 		void	privmsg(t_server &srv);
-		// void	quit();
+		void	quit(t_server &srv);
 		// void	invite();
 		void	topic(t_server &srv);
 		// void	mode();
