@@ -50,12 +50,30 @@ void	Client::joinChannel(t_server &srv) {
 	std::getline(buf, ch_name, ' ');
 	std::getline(buf, key);
 	ch_name.erase(ch_name.begin());
+	
+	// if (srv.channels[ch_name].getMode(MD_I))
+	// {
+	// 	if (srv.channels[ch_name]._invited.find(this->nickname) == srv.channels[ch_name]._invited.end())
+	// 		return ;
+	// 	//TODO: check if you need the send something like "channel is invite only!"
+	// }
+
+	std::map<std::string, Channel>::iterator it = srv.channels.find(ch_name);
+
+	if (it != srv.channels.end() && it->second.getMode(MD_I))
+	{
+		if (it->second._invited.find(this->nickname) == it->second._invited.end())
+			return ;  // the channel is invite-only and this user is not invited
+
+		//TODO: check if you need the send something like "channel is invite only!"
+	}
 
 	if (srv.channels.insert(std::pair<std::string, Channel>(ch_name, Channel(ch_name))).second) {
 		ch = &(srv.channels.find(ch_name)->second);
 		if (key.length() > 0)
 			ch->setKey(key);
 		ch->addOperator(this->nickname);
+		// ch->clients_nicknames.push_back(this->nickname);
 	}
 	else {
 		ch = &(srv.channels.find(ch_name)->second);

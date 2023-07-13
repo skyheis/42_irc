@@ -80,7 +80,6 @@ bool process_passwd(t_server &srv, std::map<int, Client*>::iterator &it, std::st
 	return (true);
 }
 
-
 /* my baby */
 
 void	new_cmd_event(t_server &srv, int i)
@@ -92,6 +91,8 @@ void	new_cmd_event(t_server &srv, int i)
 
 	bzero(srv.buffer, sizeof(srv.buffer));
 	srv.bytes_read = recv(srv.client_fd, srv.buffer, sizeof(srv.buffer), 0);
+
+	// std::cout << "srv.buffer: " << srv.buffer << std::endl;
 
 	if (!srv.bytes_read) {
 		// std::cerr << "Connection closed by the client" << std::endl;

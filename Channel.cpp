@@ -80,4 +80,12 @@ void	Channel::removeOperator(std::string &client)
 	this->_operators.erase(client);
 }
 
-//if is operator
+bool	Channel::isOperator(std::string const &client) const
+{
+	return (this->_operators.find(client) != this->_operators.end());
+}
+
+bool	Channel::isInChannel(int fd) const
+{
+	return (this->_clients.find(fd) != this->_clients.end());
+}

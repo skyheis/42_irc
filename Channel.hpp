@@ -23,16 +23,17 @@ class Channel {
 		std::string		_key;
 		bool			_mode[4];
  		
-		Channel(void);
 
 	public:
 		// std::set<Client*>	_clients;
 		// std::set<Client*>	_operators;
 		std::set<int>			_clients;
+		// std::vector<std::string>	clients_nicknames; //* to check when i want to invite a client if its already in the channel
 		std::set<std::string>	_operators;
 		std::set<std::string>	_invited;
 
 
+		Channel();
 		Channel(std::string const &name);
 		Channel(std::string const &name, std::string const &key);
 		Channel(Channel const &src);
@@ -45,6 +46,9 @@ class Channel {
 		std::set<int>			getClients() const;
 		std::set<std::string>	getOperators() const;
 		bool			getMode(int const &mode) const;
+
+		bool			isOperator(std::string const &client) const;
+		bool			isInChannel(int fd) const;
 
 		void			setTopic(std::string const &topic);
 		void			setKey(std::string const &key);

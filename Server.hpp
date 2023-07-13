@@ -45,6 +45,8 @@ typedef struct	s_server
 	std::map<std::string, Channel>	channels;
 	std::map<std::string, int>		nicknames;
 
+	std::map<Channel, std::vector<std::string> >		invated;
+
 	char		buffer[MAX_BUF];
 	std::string	command;
 	ssize_t 	bytes_read;

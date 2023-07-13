@@ -59,6 +59,7 @@
 		"map": "cpp",
 		"set": "cpp",
 		"numbers": "cpp",
-		"semaphore": "cpp"
+		"semaphore": "cpp",
+		"cinttypes": "cpp"
 	}
 }

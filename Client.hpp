@@ -42,6 +42,7 @@ class Client
 		std::string	 getRealname(void) const;
 		std::string	 getPasswd(void) const;
 		std::string	 getBuf(void) const;
+		bool		isOpInChannel(std::string channel, t_server &srv);
 
 		void	setUser(t_server &srv);
 		void	setNick(t_server &srv);
@@ -50,7 +51,7 @@ class Client
 		void	kickUser(t_server &srv);
 		void	privmsg(t_server &srv);
 		void	quit(t_server &srv);
-		// void	invite();
+		void	invite(t_server &srv);
 		void	topic(t_server &srv);
 		// void	mode();
 
