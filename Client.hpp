@@ -22,6 +22,7 @@ class Client
 		std::string nickname;
 		std::string	passwd;
 		std::string	buf;
+		std::string	_halfbuf;
 		Client();
 	public:
 		
@@ -35,14 +36,18 @@ class Client
 
 		void	handleCmd(std::string str, t_server &srv);
 
-		int			 getFd(void) const;
-		int			 getIndex(void) const;
-		std::string	 getUsername(void) const;
-		std::string	 getNick(void) const;
-		std::string	 getRealname(void) const;
-		std::string	 getPasswd(void) const;
-		std::string	 getBuf(void) const;
+		int			getFd(void) const;
+		int			getIndex(void) const;
+		std::string	getUsername(void) const;
+		std::string	getNick(void) const;
+		std::string	getRealname(void) const;
+		std::string	getPasswd(void) const;
+		std::string	getBuf(void) const;
 		bool		isOpInChannel(std::string channel, t_server &srv);
+
+		std::string	getHalfbuf(void);
+		void		setHalfbuf(std::string &buf);
+		bool		isHalfbugEmpty() const;
 
 		void	setUser(t_server &srv);
 		void	setNick(t_server &srv);
@@ -53,6 +58,7 @@ class Client
 		void	quit(t_server &srv);
 		void	invite(t_server &srv);
 		void	topic(t_server &srv);
+		void	part(t_server &srv);
 		// void	mode();
 
 		void			checkOption(t_server &srv);

@@ -3,8 +3,6 @@
 void	ft_send_kick(Channel &ch, std::string &tmp) {
 	
 	for (std::set<int>::const_iterator each = ch._clients.begin(); each != ch._clients.end(); ++each) {
-		std::cout << "GROOOOOOT" << std::endl;
-
 		send((*each), tmp.c_str(), tmp.length(), 0);
 	}
 }
@@ -38,7 +36,7 @@ void	Client::kickUser(t_server &srv) {
 	if (comment.empty())
 		comment = ":I am Groot!";
 
-	if (ch_name[0] == '#')
+	if (ch_name[0] == '#' || ch_name[0] == '@')
 		ch_name.erase(ch_name.begin());
 
 	if (!srv.channels.count(ch_name)) {

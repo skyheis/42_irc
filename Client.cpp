@@ -11,6 +11,7 @@ Client::Client(int const &fd, int index) : _fd(fd) , index(index) , _authenticat
 	// this->mappings["QUIT"] = &Client::quit;
 	this->mappings["INVITE"] = &Client::invite;
 	this->mappings["TOPIC"] = &Client::topic;
+	this->mappings["PART"] = &Client::part;
 }
 
 void		Client::setAuthenticate(bool auth) { _authenticate = auth; }
@@ -21,19 +22,29 @@ void	Client::setOp(bool op) { this->_op = op; }
 
 bool	Client::getOp() const { return (this->_op); }
 
-int			 Client::getFd(void) const { return (this->_fd); }
+int			Client::getFd(void) const { return (this->_fd); }
 
-int			 Client::getIndex(void) const { return (this->index); }
+int			Client::getIndex(void) const { return (this->index); }
 
-std::string	 Client::getUsername(void) const { return (this->username); }
+std::string	Client::getUsername(void) const { return (this->username); }
 
-std::string	 Client::getNick(void) const { return (this->nickname); }
+std::string	Client::getNick(void) const { return (this->nickname); }
 
-std::string	 Client::getRealname(void) const { return (this->realname); }
+std::string	Client::getRealname(void) const { return (this->realname); }
 
-std::string	 Client::getPasswd(void) const { return (this->passwd); }
+std::string	Client::getPasswd(void) const { return (this->passwd); }
 
-std::string	 Client::getBuf(void) const { return (this->buf); }
+std::string	Client::getBuf(void) const { return (this->buf); }
+
+std::string	Client::getHalfbuf(void) { 
+	std::string tmp = this->_halfbuf;
+	this->_halfbuf = "";
+	return (tmp);
+}
+
+void		Client::setHalfbuf(std::string &buf) { this->_halfbuf += buf; }
+
+bool		Client::isHalfbugEmpty() const { return (this->_halfbuf.empty() ? true : false); }
 
 bool	Client::isOpInChannel(std::string channel, t_server &srv) { return (srv.channels[channel].isOperator(this->nickname)); }
 

@@ -94,7 +94,7 @@ void	new_cmd_event(t_server &srv, int i)
 
 	// std::cout << "srv.buffer: " << srv.buffer << std::endl;
 
-	if (!srv.bytes_read) {
+	if (!srv.bytes_read){ // && srv.client_map[srv.client_fd]->isHalfbugEmpty()) {
 		// std::cerr << "Connection closed by the client" << std::endl;
 		ft_client_quit(srv, i);
 		// epoll_ctl(srv.poll_fd, EPOLL_CTL_DEL, srv.client_fd, &srv.ev_lst[i]);
@@ -111,12 +111,25 @@ void	new_cmd_event(t_server &srv, int i)
 	else
 	{
 		std::cout << "buffer: " << srv.buffer << std::endl;
-		std::istringstream iss_buf(srv.buffer);
-		std::string tmp;
 		std::size_t lngt;
-		bool	passwd_ok;
-
+		std::string tmp, halfbuf;
+		bool		passwd_ok;
+		
 		passwd_ok = true;
+		tmp = srv.client_map[srv.client_fd]->getHalfbuf() + srv.buffer;
+		
+		if (tmp[tmp.length() - 1] != '\n') {
+			halfbuf = tmp.substr(tmp.rfind('\n') + 1, tmp.length());
+			tmp.erase(tmp.rfind('\n') + 1, tmp.length());
+			srv.client_map[srv.client_fd]->setHalfbuf(halfbuf);
+		}
+
+		// if (tmp.find('\n') == std::string::npos) {
+		// 	srv.client_map[srv.client_fd]->setHalfbuf(tmp);
+		// 	return ;
+		// }
+
+		std::istringstream iss_buf(tmp);
 		std::getline(iss_buf, srv.command, '\n');
 		lngt = srv.command.length();
 		while (lngt && passwd_ok && srv.check) {
@@ -139,6 +152,10 @@ void	new_cmd_event(t_server &srv, int i)
 			else if (cmd == "PASS")
 				passwd_ok = process_passwd(srv, it, arg);
 
+			// if (srv.command.find('\n') == std::string::npos) {
+			// 	srv.client_map[srv.client_fd]->setHalfbuf(srv.command);
+			// 	return ;
+			// }
 			std::getline(iss_buf, srv.command, '\n');
 			lngt = srv.command.length();
 		}
