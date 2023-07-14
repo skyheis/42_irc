@@ -57,6 +57,11 @@ void	Client::topic(t_server &srv) {
 		ft_asked_topic(*this, *ch, tmp);
 	}
 	else {
+		if (srv.channels[ch_name].getMode(MD_T) && !srv.channels[ch_name]._operators.count(this->nickname)) {
+			tmp = ":ircap 482 " + this->nickname + " #" + ch_name + " :You're not channel operator\r\n";
+			send(this->_fd, tmp.c_str(), tmp.length(), 0);
+			return ;
+		}
 		ft_set_topic(*this, *ch, tmp, what);
 	}
 }

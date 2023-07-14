@@ -15,7 +15,8 @@ void	Client::invite(t_server &srv)
 	std::getline(iss, cmd, ' ');
 	std::getline(iss, cmd_nickname, ' ');
 	std::getline(iss, chan, '\n'); //TODO: if another clinet command might end with another command the just \n
-	chan.erase(chan.begin());
+	if (chan[0] == '#')
+		chan.erase(chan.begin());
 
 	//TODO: check if the command is well formatted
 	if (cmd_nickname.empty() || chan.empty())
