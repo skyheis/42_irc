@@ -159,9 +159,16 @@ void	Client::checkOption(t_server &srv)
 	std::string command, chan, option;
 	std::getline(iss, command, ' ');
 	std::getline(iss, chan, ' ');
-	std::getline(iss, option, '\0');
+	std::getline(iss, option, ' ');
 	chan.erase(chan.begin());
-
+	if (chan.empty() || option.empty())
+	{
+		std::string reply = "ERROR :No channel or option given\r\n";
+		send(_fd, reply.c_str(), reply.length(), 0);
+		return ;
+	}
+	if (option == "+k")
+		std::getline(iss, srv.channels[chan]._password, ' ');
 	if (srv.channels[chan]._operators.count(nickname))
 	{
 		//TODO: check if a msg should be send when a flag has been set or has been unset

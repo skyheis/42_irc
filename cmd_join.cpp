@@ -68,6 +68,18 @@ void	Client::joinChannel(t_server &srv) {
 		//TODO: check if you need the send something like "channel is invite only!"
 	}
 
+	std::map<std::string, Channel>::iterator itti = srv.channels.find(ch_name);
+
+	if (itti != srv.channels.end() && itti->second.getMode(MD_K))
+	{ //! ho dovuto farlo in un altro modo perche non funzionava con l'altro metodo (non so perche)
+		if (itti->second._password != key)
+		{
+			tmp = ":" + this->nickname + " #" + ch_name + " :Cannot join channel (+k)\r\n";
+			send(srv.client_fd, tmp.c_str(), tmp.length(), 0);
+			return ;  //? the channel is password-protected and the password is wrong
+		}
+	}
+
 	if (srv.channels.insert(std::pair<std::string, Channel>(ch_name, Channel(ch_name))).second) {
 		ch = &(srv.channels.find(ch_name)->second);
 		if (key.length() > 0)
@@ -77,11 +89,11 @@ void	Client::joinChannel(t_server &srv) {
 	}
 	else {
 		ch = &(srv.channels.find(ch_name)->second);
-		if (ch->getMode(MD_K) && ch->getKey().compare(key)) {
-			tmp = ":" + this->nickname + " #" + ch_name + " :Cannot join channel (+k)\r\n";
-			send(srv.client_fd, tmp.c_str(), tmp.length(), 0);
-			return ; //send error passwd message
-		}
+		// if (ch->getMode(MD_K) && ch->getKey().compare(key)) {
+		// 	tmp = ":" + this->nickname + " #" + ch_name + " :Cannot join channel (+k)\r\n";
+		// 	send(srv.client_fd, tmp.c_str(), tmp.length(), 0);
+		// 	return ; //send error passwd message
+		// }
 	}
 
 	ch->addClient(srv.client_fd);

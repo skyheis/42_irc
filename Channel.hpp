@@ -31,6 +31,7 @@ class Channel {
 		// std::vector<std::string>	clients_nicknames; //* to check when i want to invite a client if its already in the channel
 		std::set<std::string>	_operators;
 		std::set<std::string>	_invited;
+		std::string 			_password;
 
 
 		Channel();
