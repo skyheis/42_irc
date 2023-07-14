@@ -174,14 +174,11 @@ void	Client::checkOption(t_server &srv)
 		else if (option == "+t") //TODO: Set/remove the restrictions of the TOPIC command to channel operators => /mode #channelname +t
 			srv.channels[chan].setMode(MD_T, true);
 		else if (option == "-t")
-			srv.channels[chan].setMode(MD_T, true);
+			srv.channels[chan].setMode(MD_T, false);
 		else if (option == "+k") //TODO: Set/remove the channel key (password)
-		{
 			srv.channels[chan].setMode(MD_K, true);
-		}
 		else if (option == "-k")
-		{
-		}
+			srv.channels[chan].setMode(MD_K, false);
 		else if (option == "+l") //TODO: Set/remove the user limit to channel
 		{
 			srv.channels[chan].setMode(MD_L, true);
