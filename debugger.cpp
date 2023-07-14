@@ -54,7 +54,6 @@ void	printChannels(t_server &srv) {
 		chan_file << "\tmode i: " << it->second.getMode(MD_I) << std::endl;
 		chan_file << "\tmode t: " << it->second.getMode(MD_T) << std::endl;
 		chan_file << "\tmode k: " << it->second.getMode(MD_K) << std::endl;
-		chan_file << "\tmode o: " << it->second.getMode(MD_O) << std::endl;
 		chan_file << "\tmode l: " << it->second.getMode(MD_L) << std::endl;
 		chan_file << "\tclients: " << std::endl;
 		iterClients(it->second.getClients(), chan_file, srv);

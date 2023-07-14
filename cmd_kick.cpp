@@ -65,6 +65,7 @@ void	Client::kickUser(t_server &srv) {
 		tmp = ":" + this->nickname + " KICK #" + ch_name + " " + who + " " + comment + "\r\n";
 		ft_send_kick(*ch, tmp);
 		ch->_clients.erase(srv.nicknames[who]);
+		ch->_count--;
 		ch->_operators.erase(who);
 	}
 

@@ -167,8 +167,20 @@ void	Client::checkOption(t_server &srv)
 		send(_fd, reply.c_str(), reply.length(), 0);
 		return ;
 	}
+
 	if (option == "+k")
 		std::getline(iss, srv.channels[chan]._password, ' ');
+	else if (option == "+l")
+	{
+		std::string limit;
+		std::getline(iss, limit, ' ');
+		srv.channels[chan]._limit = std::strtod(limit.c_str(), NULL);
+		// if (srv.channels[chan]._limit <= 0)
+			//TODO: it should through an error bcs the limit is lower than 0
+		// if (srv.channels[chan]._limit < srv.channels[chan]._count)
+			//TODO: it should through an error bcs the limit is lower than the number of users in the channel
+	}
+
 	if (srv.channels[chan]._operators.count(nickname))
 	{
 		//TODO: check if a msg should be send when a flag has been set or has been unset
@@ -186,13 +198,10 @@ void	Client::checkOption(t_server &srv)
 			srv.channels[chan].setMode(MD_K, true);
 		else if (option == "-k")
 			srv.channels[chan].setMode(MD_K, false);
-		else if (option == "+l") //TODO: Set/remove the user limit to channel
-		{
+		else if (option == "+l") //TODO: Set/remove the user limit to channel => /mode #channelname +l 30
 			srv.channels[chan].setMode(MD_L, true);
-		}
 		else if (option == "-l")
-		{
-		}
+			srv.channels[chan].setMode(MD_L, false);
 		else
 			return ;
 	}

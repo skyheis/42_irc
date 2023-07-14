@@ -8,8 +8,7 @@
 #define MD_I	0
 #define MD_T	1
 #define MD_K	2
-#define MD_O	3
-#define MD_L	4
+#define MD_L	3
 
 class	Client;
 struct	s_server;
@@ -32,6 +31,8 @@ class Channel {
 		std::set<std::string>	_operators;
 		std::set<std::string>	_invited;
 		std::string 			_password;
+		int						_limit;
+		int						_count;
 
 
 		Channel();

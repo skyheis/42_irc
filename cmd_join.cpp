@@ -79,12 +79,29 @@ void	Client::joinChannel(t_server &srv) {
 			return ;  //? the channel is password-protected and the password is wrong
 		}
 	}
+	
+	std::map<std::string, Channel>::iterator itoti = srv.channels.find(ch_name);
+
+	if (itoti != srv.channels.end() && itoti->second.getMode(MD_L))
+	{
+		ch = &(srv.channels.find(ch_name)->second);
+		ch->_count++;
+		if (itoti->second._count > itoti->second._limit)
+		{
+			tmp = ":ircserv 471 " + this->nickname + " #" + ch_name + " :Cannot join channel (+l) - channel is full, try again later\r\n";
+			send(srv.client_fd, tmp.c_str(), tmp.length(), 0);
+			ch->_count--;
+			return ;  //? the channel is at full capacity
+		}
+		ch->_count--;
+	}
 
 	if (srv.channels.insert(std::pair<std::string, Channel>(ch_name, Channel(ch_name))).second) {
 		ch = &(srv.channels.find(ch_name)->second);
 		if (key.length() > 0)
 			ch->setKey(key);
 		ch->addOperator(this->nickname);
+		// ch->_count = 0;
 		// ch->clients_nicknames.push_back(this->nickname);
 	}
 	else {
@@ -97,6 +114,7 @@ void	Client::joinChannel(t_server &srv) {
 	}
 
 	ch->addClient(srv.client_fd);
+	ch->_count++;
 
 	ft_send_join_and_lsit(*this, *ch, srv, ch_name);
 	ft_send_topic(*this, *ch);

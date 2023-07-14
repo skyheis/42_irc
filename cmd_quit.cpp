@@ -31,6 +31,7 @@ void	Client::quit(t_server &srv) {
 	while (it != srv.channels.end()) {
 		if (it->second._clients.count(this->_fd)) {
 			ch = &(it->second);
+			ch->_count--;
 			ch->_clients.erase(this->_fd);
 			ch->_operators.erase(this->nickname);
 			ft_quit_tochannel(ch, tmp);
