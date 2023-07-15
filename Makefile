@@ -4,7 +4,7 @@ NAME = server
 
 SRC = server.cpp Server_init.cpp Server_life.cpp  Client.cpp Channel.cpp \
 	 cmd_join.cpp cmd_privmsg.cpp cmd_kick.cpp debugger.cpp cmd_topic.cpp cmd_quit.cpp \
-	 cmd_invite.cpp cmd_part.cpp
+	 cmd_invite.cpp cmd_part.cpp broadCast.cpp
 
 OBJ = $(SRC:.cpp=.o)
 

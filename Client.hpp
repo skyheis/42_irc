@@ -62,6 +62,15 @@ class Client
 		void	part(t_server &srv);
 		// void	mode();
 
+		void	inviteOnlyModeOn(t_server &srv, std::string chan);
+		void	inviteOnlyModeOff(t_server &srv, std::string chan);
+		void	topicModeOn(t_server &srv, std::string chan);
+		void	topicModeOff(t_server &srv, std::string chan);
+		void	passwordModeOn(t_server &srv, std::string chan);
+		void	passwordModeOff(t_server &srv, std::string chan);
+		void	userLimitModeOn(t_server &srv, std::string chan);
+		void	userLimitModeOff(t_server &srv, std::string chan);
+
 		void			checkOption(t_server &srv);
 
 		~Client();

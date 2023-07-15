@@ -50,7 +50,6 @@ bool	Client::isOpInChannel(std::string channel, t_server &srv) { return (srv.cha
 
 void	Client::init_operator(t_server &srv)
 {
-	// /mode #channel +o cmd_nickname
 	(void)srv;
 	std::istringstream iss(buf);
 	std::string command, channel, mode, cmd_nickname;
@@ -59,36 +58,53 @@ void	Client::init_operator(t_server &srv)
 	std::getline(iss, mode, ' ');
 	std::getline(iss, cmd_nickname, ' ');
 
-	if ((mode != "+o" && mode != "-o") || cmd_nickname.empty())
+	if ((mode != "+o" && mode != "-o"))
+		return ;
+	else if (cmd_nickname.empty())
 	{
-		//TODO: check if you need to disconnect the client or send a msg
-		// std::string reply = "ERROR :No username\r\n";
-		// send(_fd, reply.c_str(), reply.length(), 0);
+		std::string reply = "\033[31mERROR :No user was provided!\033[0m\r\n";
+		send(_fd, reply.c_str(), reply.length(), 0);
 		return ;
 	}
 	else if (mode == "+o")
 	{
 		if (cmd_nickname == nickname)
 		{
-			//TODO: checked if the client is the same
-			//TODO: check if in this case you need to send a msg
+			std::string reply = "\033[31mERROR :You are already an operator!\033[0m\r\n";
+			send(_fd, reply.c_str(), reply.length(), 0);
+			return ;
 		}
-		//TODO: check if you need to send a msg
-		// std::string reply = "Username and password have been set!\r\n";
-		// send(_fd, reply.c_str(), reply.length(), 0);
 		std::map<std::string, Channel>::iterator it = srv.channels.find(channel);
 		if (it != srv.channels.end())
+		{
+			std::string msg = "\033[32m" + cmd_nickname + " has become an operator in channel: " + channel + "\033[0m\r\n";
+			for (std::set<int>::const_iterator iter = srv.channels[channel]._clients.begin(); iter != srv.channels[channel]._clients.end(); ++iter)
+				send((*iter), msg.c_str(), msg.length(), 0);
 			it->second.addOperator(cmd_nickname);
+		}
 		else
 		{
-			//TODO Handle the situation where the channel doesn't exist in the map
+			std::string reply = "\033[31mERROR :Channel is not found!\033[0m\r\n";
+			send(_fd, reply.c_str(), reply.length(), 0);
+			return ;
 		}
 	}
 	else if (mode == "-o")
 	{
 		std::map<std::string, Channel>::iterator it = srv.channels.find(channel);
 		if (it != srv.channels.end())
+		{
+			std::string msg = "\033[32m" + cmd_nickname + " is no longer an operator in channel: " + channel + "\033[0m\r\n";
+			for (std::set<int>::const_iterator iter = srv.channels[channel]._clients.begin(); iter != srv.channels[channel]._clients.end(); ++iter)
+				send((*iter), msg.c_str(), msg.length(), 0);
 			it->second.removeOperator(cmd_nickname);
+		}
+		else
+		{
+			std::string reply = "\033[31mERROR :Channel is not found!\033[0m\r\n";
+			send(_fd, reply.c_str(), reply.length(), 0);
+			return ;
+		}
 	}
 }
 
@@ -115,9 +131,6 @@ void	Client::setUser(t_server &srv)
 		username = user;
 		realname = real;
 	}
-	//! -------------------------------- debugger -------------------------------- */
-	// std::cout << "Username: " << username << std::endl;
-	// std::cout << "Realname: " << realname << std::endl;
 }
 
 void	Client::setNick(t_server &srv)
@@ -149,8 +162,6 @@ void	Client::setNick(t_server &srv)
 		nickname = nick;
 		srv.nicknames[nick] = this->_fd;
 	}
-	//! ---------------------------------- debug --------------------------------- */
-	// std::cout << "Nickname: " << nickname << std::endl;
 }
 
 void	Client::checkOption(t_server &srv)
@@ -163,11 +174,10 @@ void	Client::checkOption(t_server &srv)
 	chan.erase(chan.begin());
 	if (chan.empty() || option.empty())
 	{
-		std::string reply = "ERROR :No channel or option given\r\n";
+		std::string reply = "\033[31mERROR :No channel or option given\033[0m\r\n";
 		send(_fd, reply.c_str(), reply.length(), 0);
 		return ;
 	}
-
 	if (option == "+k")
 		std::getline(iss, srv.channels[chan]._password, ' ');
 	else if (option == "+l")
@@ -175,39 +185,51 @@ void	Client::checkOption(t_server &srv)
 		std::string limit;
 		std::getline(iss, limit, ' ');
 		srv.channels[chan]._limit = std::strtod(limit.c_str(), NULL);
-		// if (srv.channels[chan]._limit <= 0)
-			//TODO: it should through an error bcs the limit is lower than 0
-		// if (srv.channels[chan]._limit < srv.channels[chan]._count)
-			//TODO: it should through an error bcs the limit is lower than the number of users in the channel
+		if (srv.channels[chan]._limit <= 0)
+		{
+			std::string reply = "\033[31mERROR :Limit givin is negative!\033[0m\r\n";
+			send(_fd, reply.c_str(), reply.length(), 0);
+			return ;
+
+		}
+		if (srv.channels[chan]._limit < srv.channels[chan]._count)
+		{
+			std::string reply = "\033[31mERROR :Limit givin is less than the number of users present in the channel!\033[0m\r\n";
+			send(_fd, reply.c_str(), reply.length(), 0);
+			return ;
+		}
 	}
 
 	if (srv.channels[chan]._operators.count(nickname))
 	{
-		//TODO: check if a msg should be send when a flag has been set or has been unset
 		if (option == "+o" || option == "-o")
 			setUser(srv);
-		else if (option == "+i") //TODO: Set/remove Invite-only channel
-			srv.channels[chan].setMode(MD_I, true);
+		else if (option == "+i")
+			inviteOnlyModeOn(srv, chan);
 		else if (option == "-i")
-			srv.channels[chan].setMode(MD_I, false);
-		else if (option == "+t") //TODO: Set/remove the restrictions of the TOPIC command to channel operators => /mode #channelname +t
-			srv.channels[chan].setMode(MD_T, true);
+			inviteOnlyModeOff(srv, chan);
+		else if (option == "+t")
+			topicModeOn(srv, chan);
 		else if (option == "-t")
-			srv.channels[chan].setMode(MD_T, false);
-		else if (option == "+k") //TODO: Set/remove the channel key (password)
-			srv.channels[chan].setMode(MD_K, true);
+			topicModeOff(srv, chan);
+		else if (option == "+k")
+			passwordModeOn(srv, chan);
 		else if (option == "-k")
-			srv.channels[chan].setMode(MD_K, false);
-		else if (option == "+l") //TODO: Set/remove the user limit to channel => /mode #channelname +l 30
-			srv.channels[chan].setMode(MD_L, true);
+			passwordModeOff(srv, chan);
+		else if (option == "+l")
+			userLimitModeOn(srv, chan);
 		else if (option == "-l")
-			srv.channels[chan].setMode(MD_L, false);
+			userLimitModeOff(srv, chan);
 		else
+		{
+			std::string reply = "\033[31mERROR: Option was not found!\033[0m\r\n";
+			send(_fd, reply.c_str(), reply.length(), 0);
 			return ;
+		}
 	}
 	else
 	{
-		std::string reply = "You are not an operator\r\n";
+		std::string reply = "\033[31mERROR: You are not an operator\033[0m\r\n";
 		send(_fd, reply.c_str(), reply.length(), 0);
 	}
 }
