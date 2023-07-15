@@ -22,7 +22,12 @@ class Channel {
 		std::string		_topic;
 		std::string		_key;
 		bool			_mode[4];
- 		
+
+		//bot
+		bool			_pokespawned;
+		std::string		_pokename;
+		int				_pokechance;
+		
 
 	public:
 		// std::set<Client*>	_clients;
@@ -59,4 +64,10 @@ class Channel {
 		void			removeClient(int client);
 		void			removeOperator(std::string &client);
 		void			sendMsg(std::string const &msg);
+
+		//bot
+		void			pokeSpawn(void);
+		bool			pokeIsSpawned(void);
+		bool			pokeCatch(void);
+
 };

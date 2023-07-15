@@ -12,6 +12,8 @@ Client::Client(int const &fd, int index) : _fd(fd) , index(index) , _authenticat
 	this->mappings["INVITE"] = &Client::invite;
 	this->mappings["TOPIC"] = &Client::topic;
 	this->mappings["PART"] = &Client::part;
+	this->mappings["poke"] = &Client::poke;
+	this->mappings["POKE"] = &Client::poke;
 }
 
 void		Client::setAuthenticate(bool auth) { _authenticate = auth; }

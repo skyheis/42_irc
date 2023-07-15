@@ -23,6 +23,10 @@ class Client
 		std::string	passwd;
 		std::string	buf;
 		std::string	_halfbuf;
+
+		//bot
+		std::vector<std::string>	_pokedex;
+
 		Client();
 	public:
 		
@@ -62,6 +66,12 @@ class Client
 		// void	mode();
 
 		void			checkOption(t_server &srv);
+
+		//bot
+		void						poke(t_server &srv);
+		void						addPoke(std::string name);
+		std::vector<std::string>	getPokedex(void) const;
+
 
 		~Client();
 };

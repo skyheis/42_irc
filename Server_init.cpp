@@ -58,6 +58,19 @@ static void ft_epoll_add_srv(t_server &srv) {
 	}
 }
 
+static void	ft_set_pokemon(t_server &srv) {
+	srv.pokimap.push_back("Pikachu");
+	srv.pokimap.push_back("Bulbasaur");
+	srv.pokimap.push_back("Charmander");
+	srv.pokimap.push_back("Squirtle");
+	srv.pokimap.push_back("Ditto");
+	srv.pokimap.push_back("Mew");
+	srv.pokimap.push_back("Snorlax");
+	srv.pokimap.push_back("Cubone");
+	srv.pokimap.push_back("Abra");
+	srv.pokimap.push_back("Growlithe");
+}
+
 void	init_server(std::string const &port, std::string const &passwd, t_server &srv) {
 
 	srv.port = atoi(port.c_str()); // use strdol??

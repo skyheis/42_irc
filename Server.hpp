@@ -13,6 +13,8 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
 
 #include "Client.hpp"
 #include "Channel.hpp"
@@ -46,6 +48,8 @@ typedef struct	s_server
 	std::map<std::string, int>		nicknames;
 
 	std::map<Channel, std::vector<std::string> >		invated;
+
+	std::vector<std::string>	pokemons;
 
 	char		buffer[MAX_BUF];
 	std::string	command;
