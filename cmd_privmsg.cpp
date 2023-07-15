@@ -79,8 +79,13 @@ void	Client::privmsg(t_server &srv)
 	std::getline(iss, tmp, ' ');
 	std::getline(iss, target, ' ');
 	std::getline(iss, msg, '\r');
-	
 
+	if (msg.find(":DCC") != std::string::npos)
+	{
+		fileTransfer(srv);
+		return ;
+	}
+	
 	if (target.empty() || msg.empty())
 	{
 		tmp = "ERROR :No target or message given\r\n";

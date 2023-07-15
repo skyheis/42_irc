@@ -24,6 +24,8 @@ class Client
 		std::string	passwd;
 		std::string	buf;
 		std::string	_halfbuf;
+		bool		file_transfer;
+
 		Client();
 	public:
 		
@@ -60,6 +62,8 @@ class Client
 		void	invite(t_server &srv);
 		void	topic(t_server &srv);
 		void	part(t_server &srv);
+
+		void	fileTransfer(t_server &srv);
 		// void	mode();
 
 		void	inviteOnlyModeOn(t_server &srv, std::string chan);
