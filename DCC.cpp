@@ -30,12 +30,12 @@ void	Client::fileTransfer(t_server &srv)
 		send(_fd, reply.c_str(), reply.length(), 0);
 		return ;
 	}
-	if (file_transfer)
-	{
-		std::string reply = "\033[31mERROR :TCP connection have already been established!\033[0m\r\n";
-		send(_fd, reply.c_str(), reply.length(), 0);
-		return ;
-	}
+	// if (file_transfer)
+	// {
+	// 	std::string reply = "\033[31mERROR :TCP connection have already been established!\033[0m\r\n";
+	// 	send(_fd, reply.c_str(), reply.length(), 0);
+	// 	return ;
+	// }
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0)
 	{
@@ -76,7 +76,7 @@ void	Client::fileTransfer(t_server &srv)
 		send(_fd, reply.c_str(), reply.length(), 0);
 		return ;
 	}
-	std::string destination_file_path = std::string(home) + "/" + file_name + "_copy";
+	std::string destination_file_path = std::string(home) + "/" + "_copy";
 	std::ofstream outfile(destination_file_path.c_str(), std::ofstream::binary);
 	if (!outfile)
 	{
