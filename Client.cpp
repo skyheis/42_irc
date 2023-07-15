@@ -222,7 +222,7 @@ void	Client::handleCmd(std::string str, t_server &srv)
 	std::getline(iss, arg, '\0');
 	if (command == "/mode")
 		command = "MODE";
-	if (command == "MODE")
+	if (command == "MODE" || command == "mode")
 		checkOption(srv);
 	std::map<std::string, void(Client::*)(t_server &srv)>::iterator it = this->mappings.find(command);
 	if(it != this->mappings.end())
