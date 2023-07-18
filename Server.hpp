@@ -49,7 +49,7 @@ typedef struct	s_server
 
 	std::map<Channel, std::vector<std::string> >		invated;
 
-	std::vector<std::string>	pokemons;
+	std::string	pokemons[10];
 
 	char		buffer[MAX_BUF];
 	std::string	command;

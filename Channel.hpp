@@ -9,7 +9,7 @@
 #define MD_T	1
 #define MD_K	2
 #define MD_O	3
-#define MD_L	4
+#define MD_L	3
 
 class	Client;
 struct	s_server;
@@ -68,7 +68,7 @@ class Channel {
 		//bot
 		bool			pokeSpawn(void);
 		bool			pokeIsSpawned(void);
-		bool			pokeCatch(void);
+		bool			pokeCatch(Client &they);
 		std::string		pokeName(void) const;
 
 };
