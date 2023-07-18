@@ -12,7 +12,7 @@ bool	Channel::pokeSpawn(void) {
 	pokimap["Charmander"] = 3;
 	pokimap["Squirtle"] = 3;
 	pokimap["Ditto"] = 7;
-	pokimap["Mew"] =  ;42
+	pokimap["Mew"] = 42;
 	pokimap["Snorlax"] = 5;
 	pokimap["Cubone"] = 4;
 	pokimap["Abra"] = 4;
@@ -35,13 +35,16 @@ bool		Channel::pokeIsSpawned(void) { return (this->_pokespawned); }
 
 std::string	Channel::pokeName(void) const { return (this->_pokename); }
 
-bool	Channel::pokeCatch(Client &they) {
+bool	Channel::pokeCatch(void) {
 	std::srand(std::time(0));
 
     if (std::rand() % this->_pokechance == 0) {
-		//they.addPoke
+		//send you did it to channel
 		this->_pokespawned = false;
+		return (true);
 	}
+	//u cazz to channel
+	return (false);
 }
 
 // Command execution
@@ -56,19 +59,20 @@ static void	ft_sendchannel(Channel &ch, std::string &msg) {
 std::string	ft_setpokedex(t_server &srv, Client &they, Channel &ch) {
 	int n;
 
-	std::string msg = ":pokecap!" + " PRIVMSG #" + ch.getName() + " :This is " + they.getNick() + " pokedex:\n";//\r\n;
+	std::string msg = ":pokecap! PRIVMSG #" + ch.getName() + " :This is " + they.getNick() + " pokedex:\n";//\r\n;
 	for (int i = 0; i < 10; ++i) {
-		n = they.getPokedex().count(srv.pokemons[i])
+		n = they.getPokedex().count(srv.pokemons[i]);
 		if (n)
 			msg += n + " " + srv.pokemons[i] + "\n";
 	}
+	msg += "\r\n";
 
 	return (msg);
 }
 
 void						Client::poke(t_server &srv) {
 	Channel 			*ch;
-	std::string			tmp, ch_name, who;
+	std::string			tmp, ch_name, what, who;
 	std::istringstream	buf(srv.command);
 
 	std::getline(buf, tmp, ' ');
@@ -98,34 +102,34 @@ void						Client::poke(t_server &srv) {
 	}
 	else if (!what.compare("spawn")) {
 		if (ch->pokeSpawn() == false) {
-			msg = ":pokecap!" + " PRIVMSG #" + ch.getName() + " :A " + ch.pokeName() + "has appeared! Try to catch it!\r\n";
-			ft_sendchannel(*ch, msg);
+			tmp = ":pokecap! PRIVMSG #" + ch->getName() + " :A " + ch->pokeName() + "has appeared! Try to catch it!\r\n";
+			ft_sendchannel(*ch, tmp);
 		}
 		else {
-			tmp = ":ircap 442 " + this->niclname + " #" + ch_name + " :A pokemon is already spawned!\r\n";
+			tmp = ":ircap 442 " + this->nickname + " #" + ch_name + " :A pokemon is already spawned!\r\n";
 			send(this->_fd, tmp.c_str(), tmp.length(), 0);
 		}
 	}
 	else if (!what.compare("catch")) {
-		if (ch->pokeCatch(*this))
-			this->addPoke(ch->pokeName())
+		if (ch->pokeCatch())
+			this->addPoke(ch->pokeName());
 	}
 	else if (!what.compare("pokedex")) {
-		tmp = ft_setpokedex(srv, *this, ch);
+		tmp = ft_setpokedex(srv, *this, *ch);
 
 		if (!who.compare("all"))
-			ft_sendchannel(*ch, msg);
+			ft_sendchannel(*ch, tmp);
 		else
 			send(this->_fd, tmp.c_str(), tmp.length(), 0);
 	}
 
 }
 
-std::string		Client::getPokedex(void) const {
-
+std::multiset<std::string>		Client::getPokedex(void) const {
+	return (this->_pokedex);
 }
 
-void						Client::addPoke(std::string name) { this->_pokedex.pop_back(name); }
+void						Client::addPoke(std::string name) { this->_pokedex.insert(name); }
 
 	// pokimap.push_back("Pikachu");
 	// pokimap.push_back("Bulbasaur");

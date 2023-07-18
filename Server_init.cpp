@@ -59,16 +59,16 @@ static void ft_epoll_add_srv(t_server &srv) {
 }
 
 static void	ft_set_pokemon(t_server &srv) {
-	srv.pokimap.push_back("Pikachu");
-	srv.pokimap.push_back("Bulbasaur");
-	srv.pokimap.push_back("Charmander");
-	srv.pokimap.push_back("Squirtle");
-	srv.pokimap.push_back("Ditto");
-	srv.pokimap.push_back("Mew");
-	srv.pokimap.push_back("Snorlax");
-	srv.pokimap.push_back("Cubone");
-	srv.pokimap.push_back("Abra");
-	srv.pokimap.push_back("Growlithe");
+	srv.pokemons.push_back("Pikachu");
+	srv.pokemons.push_back("Bulbasaur");
+	srv.pokemons.push_back("Charmander");
+	srv.pokemons.push_back("Squirtle");
+	srv.pokemons.push_back("Ditto");
+	srv.pokemons.push_back("Mew");
+	srv.pokemons.push_back("Snorlax");
+	srv.pokemons.push_back("Cubone");
+	srv.pokemons.push_back("Abra");
+	srv.pokemons.push_back("Growlithe");
 }
 
 void	init_server(std::string const &port, std::string const &passwd, t_server &srv) {
@@ -88,4 +88,5 @@ void	init_server(std::string const &port, std::string const &passwd, t_server &s
 	srv.ev_def.events = EPOLLIN;
 
 	ft_epoll_add_srv(srv);
+	ft_set_pokemon(srv);
 }

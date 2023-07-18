@@ -25,7 +25,7 @@ class Client
 		std::string	_halfbuf;
 
 		//bot
-		std::vector<std::string>	_pokedex;
+		std::multiset<std::string>	_pokedex;
 
 		Client();
 	public:
@@ -70,7 +70,7 @@ class Client
 		//bot
 		void						poke(t_server &srv);
 		void						addPoke(std::string name);
-		std::vector<std::string>	getPokedex(void) const;
+		std::multiset<std::string>	getPokedex(void) const;
 
 
 		~Client();
