@@ -4,15 +4,18 @@ NAME = server
 
 SRC = server.cpp Server_init.cpp Server_life.cpp  Client.cpp Channel.cpp \
 	 cmd_join.cpp cmd_privmsg.cpp cmd_kick.cpp debugger.cpp cmd_topic.cpp cmd_quit.cpp \
-	 cmd_invite.cpp cmd_part.cpp broadCast.cpp DCC.cpp
+	 cmd_invite.cpp cmd_part.cpp broadCast.cpp DCC.cpp cmd_poke.cpp
 
-OBJ = $(SRC:.cpp=.o)
+FLOBJ	= $(SRC:.cpp=.o)
+DIROBJ	= obj/
+
+OBJ = $(addprefix $(DIROBJ),$(FLOBJ))
 
 CC = c++
 
 CFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
-%.o: %.cpp
+$(DIROBJ)%.o: %.cpp
 	@echo "$(GREEN)Compiling:$(BLUE) $< $(DEF_COLOR)"
 	@$(CC) $(CFLAGS) -c $< -o $@
 
@@ -21,7 +24,7 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@echo "$(MAGENTA)Program: $(WHITE)$(CC) $(CFLAGS) -o $(NAME) $(OBJ) $(DEF_COLOR)"
+	@echo "$(MAGENTA)Program: $(WHITE)$(CC) $(CFLAGS) -o $(NAME) $(DEF_COLOR)"
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJ)
 	@echo "$(MAGENTA)Program name: $(WHITE)$(NAME)$(DEF_COLOR)"
 

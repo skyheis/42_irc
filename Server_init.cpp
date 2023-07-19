@@ -58,6 +58,19 @@ static void ft_epoll_add_srv(t_server &srv) {
 	}
 }
 
+static void	ft_set_pokemon(t_server &srv) {
+	srv.pokemons[0] = "Pikachu";
+	srv.pokemons[1] = "Bulbasaur";
+	srv.pokemons[2] = "Charmander";
+	srv.pokemons[3] = "Squirtle";
+	srv.pokemons[4] = "Ditto";
+	srv.pokemons[5] = "Mew";
+	srv.pokemons[6] = "Snorlax";
+	srv.pokemons[7] = "Cubone";
+	srv.pokemons[8] = "Abra";
+	srv.pokemons[9] = "Growlithe";
+}
+
 void	init_server(std::string const &port, std::string const &passwd, t_server &srv) {
 
 	srv.port = atoi(port.c_str()); // use strdol??
@@ -72,7 +85,9 @@ void	init_server(std::string const &port, std::string const &passwd, t_server &s
 	signal(SIGINT, signalHandler);
 
 	srv.poll_fd = epoll_create1(0);
+	memset(&srv.ev_def, 0, sizeof(srv.ev_def));
 	srv.ev_def.events = EPOLLIN;
 
 	ft_epoll_add_srv(srv);
+	ft_set_pokemon(srv);
 }

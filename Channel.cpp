@@ -2,7 +2,7 @@
 
 Channel::Channel(void) {}
 
-Channel::Channel(std::string const &name) : _name(name) , _topic("is topic a top or a pic?") {
+Channel::Channel(std::string const &name) : _name(name) , _topic("is topic a top or a pic?"), _pokespawned(false) {
 	_mode[MD_I] = false;
 	_mode[MD_T] = false;
 	_mode[MD_K] = false;

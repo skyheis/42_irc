@@ -2,13 +2,22 @@
 #include "Client.hpp"
 #include <sstream>
 
-int	server_exit(t_server &srv, int exit_code) {
-	close(srv.client_fd);
+void	server_exit(t_server &srv, int exit_code) {
+	// close(srv.client_fd);
 	close(srv.socket);
 	close(srv.poll_fd);
-	/* loop for al list */
 
-	exit(exit_code);
+	/* loop for al list */
+	std::map<int, Client *>::iterator it = srv.client_map.begin();
+
+	while (it != srv.client_map.end()) {
+		close(it->first);
+		delete it->second;
+		++it;
+	}
+
+	server_life = 0;
+	(void)exit_code;
 }
 
 void	wait_events(t_server &srv, int &ev_nums) {
@@ -20,14 +29,17 @@ void	wait_events(t_server &srv, int &ev_nums) {
 	// std::cout << "num events: " << ev_nums << std::endl;
 }
 
-void console_event(t_server &srv) {
+int console_event(t_server &srv) {
 	std::cin >> srv.buffer;
-	if (!strcmp(srv.buffer, "quit") || !strcmp(srv.buffer, "exit"))
+	if (!strcmp(srv.buffer, "quit") || !strcmp(srv.buffer, "exit")) {
 		server_exit(srv, 1);
+		return (1);
+	}
 	else if (!strcmp(srv.buffer, "clients"))
 		printClients(srv);
 	else if (!strcmp(srv.buffer, "channels"))
 		printChannels(srv);
+	return (0);
 }
 
 void new_client_event(t_server &srv) {
@@ -171,8 +183,10 @@ void	ft_server_life(t_server &srv) {
 
 		for (int i = 0; i < ev_nums; i++)
 		{
-			if (srv.ev_lst[i].data.fd == STDIN_FILENO)
-				console_event(srv);
+			if (srv.ev_lst[i].data.fd == STDIN_FILENO) {
+				if (console_event(srv))
+					break;
+			}
 			else if (srv.ev_lst[i].data.fd == sock_fd)
 				new_client_event(srv);
 			else

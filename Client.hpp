@@ -24,6 +24,10 @@ class Client
 		std::string	passwd;
 		std::string	buf;
 		std::string	_halfbuf;
+
+		//bot
+		std::multiset<std::string>	_pokedex;
+
 		bool		file_transfer;
 
 		Client();
@@ -76,6 +80,12 @@ class Client
 		void	userLimitModeOff(t_server &srv, std::string chan);
 
 		void			checkOption(t_server &srv);
+
+		//bot
+		void						poke(t_server &srv);
+		void						addPoke(std::string name);
+		std::multiset<std::string>	getPokedex(void) const;
+
 
 		~Client();
 };
