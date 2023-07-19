@@ -104,25 +104,12 @@ void	new_cmd_event(t_server &srv, int i)
 	bzero(srv.buffer, sizeof(srv.buffer));
 	srv.bytes_read = recv(srv.client_fd, srv.buffer, sizeof(srv.buffer), 0);
 
-	// std::cout << "srv.buffer: " << srv.buffer << std::endl;
-
-	if (!srv.bytes_read){ // && srv.client_map[srv.client_fd]->isHalfbugEmpty()) {
-		// std::cerr << "Connection closed by the client" << std::endl;
+	if (!srv.bytes_read)
 		ft_client_quit(srv, i);
-		// epoll_ctl(srv.poll_fd, EPOLL_CTL_DEL, srv.client_fd, &srv.ev_lst[i]);
-		// // close(srv.client_fd);/* remove epoll_ctl */
-		// //! ------------------- remove from map ------------------- */
-		
-		// //send disconect to all channels and remove from all channels
-		
-		// srv.client_map.erase(it);
-		// delete it->second;
-	}
 	else if (srv.bytes_read < 0)
 		std::cerr << "Error while receving the message" << std::endl;
 	else
 	{
-		std::cout << "buffer: " << srv.buffer << std::endl;
 		std::size_t lngt;
 		std::string tmp, halfbuf;
 		bool		passwd_ok;
@@ -136,16 +123,10 @@ void	new_cmd_event(t_server &srv, int i)
 			srv.client_map[srv.client_fd]->setHalfbuf(halfbuf);
 		}
 
-		// if (tmp.find('\n') == std::string::npos) {
-		// 	srv.client_map[srv.client_fd]->setHalfbuf(tmp);
-		// 	return ;
-		// }
-
 		std::istringstream iss_buf(tmp);
 		std::getline(iss_buf, srv.command, '\n');
 		lngt = srv.command.length();
 		while (lngt && passwd_ok && srv.check) {
-			std::cout << "command" << srv.command << std::endl;
 			if (srv.command[lngt - 1] == '\r')
 				srv.command.erase(lngt - 1 ,1);
 
@@ -164,10 +145,6 @@ void	new_cmd_event(t_server &srv, int i)
 			else if (cmd == "PASS")
 				passwd_ok = process_passwd(srv, it, arg);
 
-			// if (srv.command.find('\n') == std::string::npos) {
-			// 	srv.client_map[srv.client_fd]->setHalfbuf(srv.command);
-			// 	return ;
-			// }
 			std::getline(iss_buf, srv.command, '\n');
 			lngt = srv.command.length();
 		}
