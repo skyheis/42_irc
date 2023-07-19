@@ -5,7 +5,6 @@ Client::Client(int const &fd, int index) : _fd(fd) , index(index) , _authenticat
 	this->mappings["USER"] = &Client::setUser;
 	this->mappings["NICK"] = &Client::setNick;
 	this->mappings["JOIN"] = &Client::joinChannel;
-	this->mappings["MODE"] = &Client::init_operator;
 	this->mappings["KICK"] = &Client::kickUser;
 	this->mappings["PRIVMSG"] = &Client::privmsg;
 	// this->mappings["QUIT"] = &Client::quit;
@@ -57,7 +56,14 @@ void	Client::init_operator(t_server &srv)
 	std::getline(iss, channel, ' ');
 	std::getline(iss, mode, ' ');
 	std::getline(iss, cmd_nickname, ' ');
-
+	if (channel.empty() || mode.empty())
+	{
+		std::string reply = "\033[31mERROR :No channel or mode given!\033[0m\r\n";
+		send(_fd, reply.c_str(), reply.length(), 0);
+		return ;
+	}
+	if (channel[0] == '#')
+		channel.erase(channel.begin());
 	if ((mode != "+o" && mode != "-o"))
 		return ;
 	else if (cmd_nickname.empty())
@@ -73,6 +79,16 @@ void	Client::init_operator(t_server &srv)
 			std::string reply = "\033[31mERROR :You are already an operator!\033[0m\r\n";
 			send(_fd, reply.c_str(), reply.length(), 0);
 			return ;
+		}
+		std::map<std::string, Channel>::iterator ito = srv.channels.find(channel);
+		if (ito != srv.channels.end())
+		{
+			if (ito->second._operators.find(cmd_nickname) != ito->second._operators.end())
+			{
+				std::string reply = "\033[31mERROR :User is already an operator!\033[0m\r\n";
+				send(_fd, reply.c_str(), reply.length(), 0);
+				return ;
+			}
 		}
 		std::map<std::string, Channel>::iterator it = srv.channels.find(channel);
 		if (it != srv.channels.end())
@@ -203,7 +219,7 @@ void	Client::checkOption(t_server &srv)
 	if (srv.channels[chan]._operators.count(nickname))
 	{
 		if (option == "+o" || option == "-o")
-			setUser(srv);
+			init_operator(srv);
 		else if (option == "+i")
 			inviteOnlyModeOn(srv, chan);
 		else if (option == "-i")

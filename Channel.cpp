@@ -59,8 +59,7 @@ void	Channel::setTopic(std::string const &topic) {
 }
 
 void	Channel::setKey(std::string const &key) {
-	this->_key = key;
-	this->setMode(MD_K, true);
+	this->_password = key;
 }
 
 void	Channel::setMode(int const &mode, bool const &value) {

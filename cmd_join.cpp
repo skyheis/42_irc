@@ -63,15 +63,17 @@ void	Client::joinChannel(t_server &srv) {
 	if (it != srv.channels.end() && it->second.getMode(MD_I))
 	{
 		if (it->second._invited.find(this->nickname) == it->second._invited.end())
-			return ;  // the channel is invite-only and this user is not invited
-
-		//TODO: check if you need the send something like "channel is invite only!"
+		{
+			std::string reply = "\033[31m" + this->nickname + " " + ch_name + ":Cannot join channel (+i)\033[0m\r\n";
+			send(_fd, reply.c_str(), reply.length(), 0);
+			return ;
+		}
 	}
 
 	std::map<std::string, Channel>::iterator itti = srv.channels.find(ch_name);
 
 	if (itti != srv.channels.end() && itti->second.getMode(MD_K))
-	{ //! ho dovuto farlo in un altro modo perche non funzionava con l'altro metodo (non so perche)
+	{
 		if (itti->second._password != key)
 		{
 			tmp = ":" + this->nickname + " #" + ch_name + " :Cannot join channel (+k)\r\n";
@@ -99,7 +101,10 @@ void	Client::joinChannel(t_server &srv) {
 	if (srv.channels.insert(std::pair<std::string, Channel>(ch_name, Channel(ch_name))).second) {
 		ch = &(srv.channels.find(ch_name)->second);
 		if (key.length() > 0)
+		{
 			ch->setKey(key);
+			passwordModeOn(srv, ch_name);
+		}
 		ch->addOperator(this->nickname);
 		// ch->_count = 0;
 		// ch->clients_nicknames.push_back(this->nickname);
