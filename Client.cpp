@@ -7,7 +7,6 @@ Client::Client(int const &fd, int index) : _fd(fd) , index(index) , _authenticat
 	this->mappings["JOIN"] = &Client::joinChannel;
 	this->mappings["KICK"] = &Client::kickUser;
 	this->mappings["PRIVMSG"] = &Client::privmsg;
-	// this->mappings["QUIT"] = &Client::quit;
 	this->mappings["INVITE"] = &Client::invite;
 	this->mappings["TOPIC"] = &Client::topic;
 	this->mappings["PART"] = &Client::part;
@@ -51,26 +50,29 @@ bool	Client::isOpInChannel(std::string channel, t_server &srv) { return (srv.cha
 
 void	Client::init_operator(t_server &srv)
 {
-	(void)srv;
 	std::istringstream iss(buf);
 	std::string command, channel, mode, cmd_nickname;
 	std::getline(iss, command, ' ');
 	std::getline(iss, channel, ' ');
 	std::getline(iss, mode, ' ');
 	std::getline(iss, cmd_nickname, ' ');
-	if (channel.empty() || mode.empty())
+
+	if (channel.empty())
 	{
-		std::string reply = "\033[31mERROR :No channel or mode given!\033[0m\r\n";
+		std::string reply = ":ircap 300 MODE :Not enough parameters\r\n"; 
 		send(_fd, reply.c_str(), reply.length(), 0);
 		return ;
 	}
+	else if (mode.empty())
+		return ; //RPL_CHANNELMODEIS (324) 
+
 	if (channel[0] == '#')
 		channel.erase(channel.begin());
 	if ((mode != "+o" && mode != "-o"))
 		return ;
 	else if (cmd_nickname.empty())
 	{
-		std::string reply = "\033[31mERROR :No user was provided!\033[0m\r\n";
+		std::string reply = ":ircap ERROR :No user was provided!\r\n";
 		send(_fd, reply.c_str(), reply.length(), 0);
 		return ;
 	}
@@ -78,7 +80,7 @@ void	Client::init_operator(t_server &srv)
 	{
 		if (cmd_nickname == nickname)
 		{
-			std::string reply = "\033[31mERROR :You are already an operator!\033[0m\r\n";
+			std::string reply = ":ircap 300 ERROR :You are already an operator!\r\n";
 			send(_fd, reply.c_str(), reply.length(), 0);
 			return ;
 		}
@@ -87,7 +89,7 @@ void	Client::init_operator(t_server &srv)
 		{
 			if (ito->second._operators.find(cmd_nickname) != ito->second._operators.end())
 			{
-				std::string reply = "\033[31mERROR :User is already an operator!\033[0m\r\n";
+				std::string reply = ":ircap 300 ERROR :User is already an operator!\r\n";
 				send(_fd, reply.c_str(), reply.length(), 0);
 				return ;
 			}
@@ -95,14 +97,15 @@ void	Client::init_operator(t_server &srv)
 		std::map<std::string, Channel>::iterator it = srv.channels.find(channel);
 		if (it != srv.channels.end())
 		{
-			std::string msg = "\033[32m" + cmd_nickname + " has become an operator in channel: " + channel + "\033[0m\r\n";
+			// std::string msg = cmd_nickname + " has become an operator in channel: " + channel + "\r\n";
+			std::string msg = ":" + this->nickname + " MODE #" + channel + " +o " + cmd_nickname + "\r\n";
 			for (std::set<int>::const_iterator iter = srv.channels[channel]._clients.begin(); iter != srv.channels[channel]._clients.end(); ++iter)
 				send((*iter), msg.c_str(), msg.length(), 0);
 			it->second.addOperator(cmd_nickname);
 		}
 		else
 		{
-			std::string reply = "\033[31mERROR :Channel is not found!\033[0m\r\n";
+			std::string reply =":ircap 403 " + this->nickname + " #" + channel + " :No such channel\r\n";
 			send(_fd, reply.c_str(), reply.length(), 0);
 			return ;
 		}
@@ -112,14 +115,14 @@ void	Client::init_operator(t_server &srv)
 		std::map<std::string, Channel>::iterator it = srv.channels.find(channel);
 		if (it != srv.channels.end())
 		{
-			std::string msg = "\033[32m" + cmd_nickname + " is no longer an operator in channel: " + channel + "\033[0m\r\n";
+			std::string msg = ":" + this->nickname + " MODE #" + channel + " -o " + cmd_nickname + "\r\n";
 			for (std::set<int>::const_iterator iter = srv.channels[channel]._clients.begin(); iter != srv.channels[channel]._clients.end(); ++iter)
 				send((*iter), msg.c_str(), msg.length(), 0);
 			it->second.removeOperator(cmd_nickname);
 		}
 		else
 		{
-			std::string reply = "\033[31mERROR :Channel is not found!\033[0m\r\n";
+			std::string reply = ":ircap 403 " + this->nickname + " #" + channel + " :No such channel\r\n";
 			send(_fd, reply.c_str(), reply.length(), 0);
 			return ;
 		}
@@ -160,22 +163,22 @@ void	Client::setNick(t_server &srv)
 
 	if (nick.empty())
 	{
-		std::string reply = "ERROR :No nickname given\r\n";
+		std::string reply = ":ircap 431 " + this->nickname + " :No nickname given\r\n";
 		send(_fd, reply.c_str(), reply.length(), 0);
 	}
 	else if(srv.nicknames.count(nick))
 	{
-		std::string out = "Err_num(431) nickname provided already used\r\n";
+		std::string out = ":ircap 431 " + this->nickname + " :Nickname is already in use\r\n";
 		send(_fd, out.c_str(), out.length(), 0);
-		std::string dis = "Disconnected ()\r\n";
-		send(_fd, dis.c_str(), dis.length(), 0);
+		// std::string dis = "Disconnected ()\r\n";
+		// send(_fd, dis.c_str(), dis.length(), 0);
 		srv.check = false;
 		close(srv.client_fd);
 		return ;
 	}
 	else
 	{
-		std::string reply = "Nickname has been set!\r\n";
+		std::string reply = ":" + this->nickname + " NICK " + nick + "\r\n";
 		send(_fd, reply.c_str(), reply.length(), 0);
 		nickname = nick;
 		srv.nicknames[nick] = this->_fd;
@@ -189,13 +192,19 @@ void	Client::checkOption(t_server &srv)
 	std::getline(iss, command, ' ');
 	std::getline(iss, chan, ' ');
 	std::getline(iss, option, ' ');
-	chan.erase(chan.begin());
-	if (chan.empty() || option.empty())
+
+	if (chan.empty())
 	{
-		std::string reply = "\033[31mERROR :No channel or option given\033[0m\r\n";
+		std::string reply = ":ircap 300 MODE :Not enough parameters\r\n"; 
 		send(_fd, reply.c_str(), reply.length(), 0);
 		return ;
 	}
+	else if (option.empty())
+		return ; //RPL_CHANNELMODEIS (324) 
+
+	if (chan[0] == '#')
+		chan.erase(chan.begin());
+	
 	if (option == "+k")
 		std::getline(iss, srv.channels[chan]._password, ' ');
 	else if (option == "+l")
@@ -205,14 +214,14 @@ void	Client::checkOption(t_server &srv)
 		srv.channels[chan]._limit = std::strtod(limit.c_str(), NULL);
 		if (srv.channels[chan]._limit <= 0)
 		{
-			std::string reply = "\033[31mERROR :Limit givin is negative!\033[0m\r\n";
+			std::string reply = ":ircap 300 ERROR :Limit givin is negative!\r\n";
 			send(_fd, reply.c_str(), reply.length(), 0);
 			return ;
 
 		}
 		if (srv.channels[chan]._limit < srv.channels[chan]._count)
 		{
-			std::string reply = "\033[31mERROR :Limit givin is less than the number of users present in the channel!\033[0m\r\n";
+			std::string reply = ":ircap 300 ERROR :Limit givin is less than the number of users present in the channel!\r\n";
 			send(_fd, reply.c_str(), reply.length(), 0);
 			return ;
 		}
@@ -240,14 +249,14 @@ void	Client::checkOption(t_server &srv)
 			userLimitModeOff(srv, chan);
 		else
 		{
-			std::string reply = "\033[31mERROR: Option was not found!\033[0m\r\n";
+			std::string reply = ":ircap 300 ERROR: Option was not found!\r\n";
 			send(_fd, reply.c_str(), reply.length(), 0);
 			return ;
 		}
 	}
 	else
 	{
-		std::string reply = "\033[31mERROR: You are not an operator\033[0m\r\n";
+		std::string reply = ":ircap 482 " + this->nickname + " #" + chan + " :You're not channel operator\r\n";
 		send(_fd, reply.c_str(), reply.length(), 0);
 	}
 }
@@ -262,8 +271,10 @@ void	Client::handleCmd(std::string str, t_server &srv)
 	std::getline(iss, arg, '\0');
 	if (command == "/mode")
 		command = "MODE";
-	if (command == "MODE" || command == "mode")
+	if (command == "MODE" || command == "mode") {
 		checkOption(srv);
+		return ;
+	}
 	std::map<std::string, void(Client::*)(t_server &srv)>::iterator it = this->mappings.find(command);
 	if(it != this->mappings.end())
 	{

@@ -68,6 +68,8 @@ void	Client::joinChannel(t_server &srv) {
 			send(_fd, reply.c_str(), reply.length(), 0);
 			return ;
 		}
+		else
+		    it->second._invited.erase(this->nickname);
 	}
 
 	std::map<std::string, Channel>::iterator itti = srv.channels.find(ch_name);

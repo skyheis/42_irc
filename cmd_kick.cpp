@@ -21,8 +21,6 @@ bool	ft_kicked_inchannel(t_server &srv, Channel *ch, std::string &who) {
 }
 
 void	Client::kickUser(t_server &srv) {
-	// if (sr(this->nickname)
-	// lol
 
 	Channel 			*ch;
 	std::string			tmp, ch_name, who, comment;
@@ -52,12 +50,10 @@ void	Client::kickUser(t_server &srv) {
 		send(this->_fd, tmp.c_str(), tmp.length(), 0);
 	}
 	else if (!ch->_operators.count(this->nickname)) {
-		// error user not op
 		tmp = ":ircap 482 " + this->nickname + " #" + ch_name + " :You're not channel operator\r\n";
 		send(this->_fd, tmp.c_str(), tmp.length(), 0);
 	}
 	else if (!ft_kicked_inchannel(srv, ch, who)) {
-		// kicked user not in channel
 		tmp = ":ircap 441 " + this->nickname + " " + who + " #" + ch_name + " :They aren't on that channel\r\n";
 		send(this->_fd, tmp.c_str(), tmp.length(), 0);
 	}
