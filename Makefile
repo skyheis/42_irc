@@ -4,7 +4,7 @@ NAME = ircserv
 
 SRC = server.cpp Server_init.cpp Server_life.cpp  Client.cpp Channel.cpp \
 	 cmd_join.cpp cmd_privmsg.cpp cmd_kick.cpp debugger.cpp cmd_topic.cpp cmd_quit.cpp \
-	 cmd_invite.cpp cmd_part.cpp broadCast.cpp DCC.cpp cmd_poke.cpp
+	 cmd_invite.cpp cmd_part.cpp cmd_nick.cpp cmd_mode.cpp broadCast.cpp DCC.cpp cmd_poke.cpp
 
 FLOBJ	= $(SRC:.cpp=.o)
 DIROBJ	= obj/

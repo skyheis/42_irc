@@ -25,8 +25,9 @@ class Channel;
 #define MAX_BUF		512
 #define MAX_EVENTS	1024
 
-extern int sock_fd;
+extern int	sock_fd;
 extern int	server_life;
+extern bool	nick_used;
 
 typedef struct	s_server
 {
@@ -62,3 +63,4 @@ void	ft_server_life(t_server &srv);
 void	printClients(t_server &srv);
 void	printChannels(t_server &srv);
 void	ft_client_quit(t_server &srv, int i);
+void	ft_set_nick(t_server &srv, int i);

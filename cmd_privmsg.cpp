@@ -104,9 +104,4 @@ void	Client::privmsg(t_server &srv)
 		send(this->_fd, tmp.c_str(), tmp.length(), 0);
 		return ;
 	}
-	// else
-	// {
-	// 	tmp = ":" + nickname + "!" + username + " PRIVMSG " + target + " :" + msg + "\r\n";
-	// 	send(this->_fd, tmp.c_str(), tmp.length(), 0);
-	// }
 }

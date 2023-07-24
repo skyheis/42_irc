@@ -2,37 +2,16 @@
 #include "Client.hpp"
 #include <sstream>
 
-void	server_exit(t_server &srv, int exit_code) {
-	// close(srv.client_fd);
-	close(srv.socket);
-	close(srv.poll_fd);
-
-	/* loop for al list */
-	std::map<int, Client *>::iterator it = srv.client_map.begin();
-
-	while (it != srv.client_map.end()) {
-		close(it->first);
-		delete it->second;
-		++it;
-	}
-
-	server_life = 0;
-	(void)exit_code;
-}
-
 void	wait_events(t_server &srv, int &ev_nums) {
 	ev_nums = epoll_wait(srv.poll_fd, srv.ev_lst, MAX_EVENTS, -1);
-	if (ev_nums == -1) {
-		perror("Error in epoll()");
-		// server_exit(srv, 1);
-	}
-	// std::cout << "num events: " << ev_nums << std::endl;
+	if (ev_nums == -1)
+		perror("Error in epoll() or CTRL+C recived:");
 }
 
 int console_event(t_server &srv) {
 	std::cin >> srv.buffer;
 	if (!strcmp(srv.buffer, "quit") || !strcmp(srv.buffer, "exit")) {
-		server_exit(srv, 1);
+		server_life = 0;
 		return (1);
 	}
 	else if (!strcmp(srv.buffer, "clients"))
@@ -57,8 +36,6 @@ void new_client_event(t_server &srv) {
 	
 	//! ---------------------- new client in  map -------------------------------- */
 	srv.client_map[srv.client_fd] = new Client(srv.client_fd, index++);
-	//new client;
-	//srv.client_map.new()  <--> map <int => clinet_fd, client => new client>
 	//aggiungi a mappa
 
 	result = epoll_ctl(srv.poll_fd, EPOLL_CTL_ADD, srv.client_fd, &srv.ev_def);
@@ -71,9 +48,6 @@ void new_client_event(t_server &srv) {
 bool process_passwd(t_server &srv, std::map<int, Client*>::iterator &it, std::string &arg) {
 	std::string konversation = ":";
 	konversation += srv.passwd;
-	// std::cout << "arg: " << arg << std::endl;
-	// std::cout << "srv.passwd: " << srv.passwd << std::endl;
-	// std::cout << "konversation: " << konversation << std::endl;
 	if (arg != srv.passwd && arg != konversation)
 	{
 		std::string wrong = "Err_num(464) Wrong password\r\n";
@@ -131,16 +105,20 @@ void	new_cmd_event(t_server &srv, int i)
 				srv.command.erase(lngt - 1 ,1);
 
 			std::istringstream iss(srv.command);
-
 			std::string cmd, arg;
 			std::getline(iss, cmd, ' ');
 			std::getline(iss, arg);
+
+			std::cout << "\nclient send: " << srv.command << std::endl;
+
 			if (cmd == "QUIT")
 				ft_client_quit(srv, i);
 			else if (srv.client_map[srv.client_fd]->getAuthenticate() == true)
 			{
-				std::cout << "client send: " << srv.command << std::endl;
-				srv.client_map[srv.client_fd]->handleCmd(srv.command, srv);
+				if (cmd == "NICK")
+					ft_set_nick(srv, i);
+				else if (!srv.client_map[srv.client_fd]->getNick().empty())
+					srv.client_map[srv.client_fd]->handleCmd(srv.command, srv);
 			}
 			else if (cmd == "PASS")
 				passwd_ok = process_passwd(srv, it, arg);
@@ -157,6 +135,9 @@ void	ft_server_life(t_server &srv) {
 	while (server_life)
 	{
 		wait_events(srv, ev_nums);
+
+		if (ev_nums == -1)
+			continue ;
 
 		for (int i = 0; i < ev_nums; i++)
 		{

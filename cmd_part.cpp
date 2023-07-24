@@ -40,6 +40,7 @@ void	Client::part(t_server &srv) {
 		ft_send_part(*ch, tmp);
 		ch->_clients.erase(srv.nicknames[this->nickname]);
 		ch->_operators.erase(this->nickname);
+		ch->_count--;
 	}
 
 }

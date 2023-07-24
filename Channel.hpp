@@ -27,12 +27,10 @@ class Channel {
 		std::string		_pokename;
 		int				_pokechance;
 		
+		Channel();
 
 	public:
-		// std::set<Client*>	_clients;
-		// std::set<Client*>	_operators;
 		std::set<int>			_clients;
-		// std::vector<std::string>	clients_nicknames; //* to check when i want to invite a client if its already in the channel
 		std::set<std::string>	_operators;
 		std::set<std::string>	_invited;
 		std::string 			_password;
@@ -40,9 +38,7 @@ class Channel {
 		int						_count;
 
 
-		Channel();
 		Channel(std::string const &name);
-		Channel(std::string const &name, std::string const &key);
 		Channel(Channel const &src);
 		~Channel();
 		Channel &operator=(Channel const &rhs);

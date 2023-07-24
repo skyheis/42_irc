@@ -2,7 +2,7 @@
 
 Channel::Channel(void) {}
 
-Channel::Channel(std::string const &name) : _name(name) , _topic("is topic a top or a pic?"), _pokespawned(false) {
+Channel::Channel(std::string const &name) : _name(name) , _topic("is topic a top or a pic?"), _pokespawned(false), _count(0) {
 	_mode[MD_I] = false;
 	_mode[MD_T] = false;
 	_mode[MD_K] = false;
@@ -21,7 +21,12 @@ Channel &Channel::operator=(Channel const &rhs) {
 		_topic = rhs._topic;
 		_key = rhs._key;
 		_clients = rhs._clients;
+		_count = rhs._count;
+		_limit = rhs._limit;
 		_operators = rhs._operators;
+		_pokespawned = rhs._pokespawned;
+		_pokename = rhs._pokename;
+		_pokechance = rhs._pokechance;
 		_mode[MD_I] = rhs._mode[MD_I];
 		_mode[MD_T] = rhs._mode[MD_T];
 		_mode[MD_K] = rhs._mode[MD_K];

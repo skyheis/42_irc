@@ -11,18 +11,18 @@
 void	Client::invite(t_server &srv)
 {
 	Channel *ch;
-	std::istringstream iss(srv.buffer);
+	std::istringstream iss(srv.command);
 	std::string cmd, cmd_nickname, chan;
 	std::getline(iss, cmd, ' ');
 	std::getline(iss, cmd_nickname, ' ');
-	std::getline(iss, chan, '\r'); //TODO: if another client command might end with another command the just \n
+	std::getline(iss, chan);
 
 
 	if (chan[0] == '#' || chan[0] == '@')
 		chan.erase(chan.begin());
+	while (chan[chan.size() - 1] == '\n' || chan[chan.size() - 1] == '\r' || chan[chan.size() - 1] == ' ')
+		chan.erase(chan.end() - 1);
 
-	std::cout << "debug ivite: " << chan << std::endl;
-	
 	if (!srv.channels.count(chan)) {
 		cmd = ":ircap 403 " + this->nickname + " #" + chan + " :No such channel\r\n"; 
 		send(this->_fd, cmd.c_str(), cmd.length(), 0);
@@ -45,7 +45,7 @@ void	Client::invite(t_server &srv)
 	}
 	else {
 		// invite the client to the channel
-		srv.channels[chan]._invited.insert(cmd_nickname);
+		ch->_invited.insert(cmd_nickname);
 		
 		// send the replay to the operator
 		std::string reply = ":ircap 341 " + this->nickname + " #" + chan + " :invite sent successfully\r\n";

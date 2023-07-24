@@ -6,7 +6,7 @@
 /*   By: ggiannit <ggiannit@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/28 15:31:16 by ggiannit          #+#    #+#             */
-/*   Updated: 2023/07/06 18:28:16 by ggiannit         ###   ########.fr       */
+/*   Updated: 2023/07/23 18:39:59 by ggiannit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,23 @@
 
 #include "Server.hpp"
 
-int sock_fd = 0;
-int	server_life = 1;
+int		sock_fd = 0;
+int		server_life = 1;
+bool	nick_used = false;
+
+void	server_exit(t_server &srv) {
+	close(srv.socket);
+	close(srv.poll_fd);
+
+	/* loop for al list */
+	std::map<int, Client *>::iterator it = srv.client_map.begin();
+
+	while (it != srv.client_map.end()) {
+		close(it->first);
+		delete it->second;
+		++it;
+	}
+}
 
 int	main(int ac, char **av) {
 	t_server	srv;
@@ -40,14 +55,7 @@ int	main(int ac, char **av) {
 
 	std::cout << "Starting server life...\n" << std::endl;
 	ft_server_life(srv);
-	
-	close(sock_fd);
+
+	server_exit(srv); 
 	return (0);
 }
-
-// void	signalHandler(int signum) {
-// 	std::cout << "Interrupt signal (" << signum << ") received." << std::endl;
-// 	server_life = 0;
-// 	close(sock_fd);
-// 	exit(1);
-// }

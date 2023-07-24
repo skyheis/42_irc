@@ -6,7 +6,8 @@
 #include <map>
 #include "sys/socket.h"
 #include "Server.hpp"
-// #include <cstddef>
+
+class Channel;
 
 typedef struct s_server t_server;
 
@@ -25,12 +26,12 @@ class Client
 		std::string	buf;
 		std::string	_halfbuf;
 
-		//bot
+		//bot e filetran
 		std::multiset<std::string>	_pokedex;
-
 		bool		file_transfer;
 
 		Client();
+
 	public:
 		
 		Client(int const &fd, int index);
@@ -50,7 +51,6 @@ class Client
 		std::string	getRealname(void) const;
 		std::string	getPasswd(void) const;
 		std::string	getBuf(void) const;
-		bool		isOpInChannel(std::string channel, t_server &srv);
 
 		std::string	getHalfbuf(void);
 		void		setHalfbuf(std::string &buf);
@@ -68,16 +68,15 @@ class Client
 		void	part(t_server &srv);
 
 		void	fileTransfer(t_server &srv);
-		// void	mode();
 
-		void	inviteOnlyModeOn(t_server &srv, std::string chan);
-		void	inviteOnlyModeOff(t_server &srv, std::string chan);
-		void	topicModeOn(t_server &srv, std::string chan);
-		void	topicModeOff(t_server &srv, std::string chan);
-		void	passwordModeOn(t_server &srv, std::string chan);
-		void	passwordModeOff(t_server &srv, std::string chan);
-		void	userLimitModeOn(t_server &srv, std::string chan);
-		void	userLimitModeOff(t_server &srv, std::string chan);
+		void	inviteOnlyModeOn(Channel &chan);
+		void	inviteOnlyModeOff(Channel &chan);
+		void	topicModeOn(Channel &chan);
+		void	topicModeOff(Channel &chan);
+		void	passwordModeOn(Channel &chan);
+		void	passwordModeOff(Channel &chan);
+		void	userLimitModeOn(Channel &chan);
+		void	userLimitModeOff(Channel &chan);
 
 		void			checkOption(t_server &srv);
 

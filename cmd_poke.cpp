@@ -164,14 +164,3 @@ std::multiset<std::string>		Client::getPokedex(void) const {
 }
 
 void						Client::addPoke(std::string name) { this->_pokedex.insert(name); }
-
-	// pokimap.push_back("Pikachu");
-	// pokimap.push_back("Bulbasaur");
-	// pokimap.push_back("Charmander");
-	// pokimap.push_back("Squirtle");
-	// pokimap.push_back("Ditto");
-	// pokimap.push_back("Mew");
-	// pokimap.push_back("Snorlax");
-	// pokimap.push_back("Cubone");
-	// pokimap.push_back("Abra");
-	// pokimap.push_back("Growlithe");

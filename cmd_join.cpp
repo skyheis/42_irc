@@ -6,7 +6,6 @@ void	ft_send_topic(Client &they, Channel &ch) {
 	std::string msg = ":ircap 332 " + they.getNick() + " #" + ch.getName() + " :" + ch.getTopic() + "\r\n";
 
 	send(they.getFd(), msg.c_str(), msg.length(), 0);
-	std::cout << "Debug: " << msg << std::endl;
 }
 
 void	ft_send_join_and_lsit(Client &they, Channel &ch, t_server &srv, std::string &ch_name) {
@@ -39,9 +38,9 @@ int		ft_checkname(t_server &srv) {
 }
 
 void	Client::joinChannel(t_server &srv) {
+
 	if (ft_checkname(srv))
 		return ;
-
 	Channel 			*ch;
 	std::string			tmp, ch_name, key, lst_name;
 	std::istringstream	buf(srv.command);
@@ -51,13 +50,6 @@ void	Client::joinChannel(t_server &srv) {
 	std::getline(buf, key);
 	ch_name.erase(ch_name.begin());
 	
-	// if (srv.channels[ch_name].getMode(MD_I))
-	// {
-	// 	if (srv.channels[ch_name]._invited.find(this->nickname) == srv.channels[ch_name]._invited.end())
-	// 		return ;
-	// 	//TODO: check if you need the send something like "channel is invite only!"
-	// }
-
 	std::map<std::string, Channel>::iterator it = srv.channels.find(ch_name);
 
 	if (it != srv.channels.end() && it->second.getMode(MD_I))
@@ -68,29 +60,23 @@ void	Client::joinChannel(t_server &srv) {
 			send(_fd, reply.c_str(), reply.length(), 0);
 			return ;
 		}
-		else
-		    it->second._invited.erase(this->nickname);
 	}
 
-	std::map<std::string, Channel>::iterator itti = srv.channels.find(ch_name);
-
-	if (itti != srv.channels.end() && itti->second.getMode(MD_K))
+	if (it != srv.channels.end() && it->second.getMode(MD_K))
 	{
-		if (itti->second._password != key)
+		if (it->second._password != key)
 		{
 			tmp = ":" + this->nickname + " #" + ch_name + " :Cannot join channel (+k)\r\n";
 			send(srv.client_fd, tmp.c_str(), tmp.length(), 0);
 			return ;  //? the channel is password-protected and the password is wrong
 		}
 	}
-	
-	std::map<std::string, Channel>::iterator itoti = srv.channels.find(ch_name);
 
-	if (itoti != srv.channels.end() && itoti->second.getMode(MD_L))
+	if (it != srv.channels.end() && it->second.getMode(MD_L))
 	{
-		ch = &(srv.channels.find(ch_name)->second);
+		ch = &(it->second);
 		ch->_count++;
-		if (itoti->second._count > itoti->second._limit)
+		if (ch->_count > ch->_limit)
 		{
 			tmp = ":ircserv 471 " + this->nickname + " #" + ch_name + " :Cannot join channel (+l) - channel is full, try again later\r\n";
 			send(srv.client_fd, tmp.c_str(), tmp.length(), 0);
@@ -105,19 +91,15 @@ void	Client::joinChannel(t_server &srv) {
 		if (key.length() > 0)
 		{
 			ch->setKey(key);
-			passwordModeOn(srv, ch_name);
+			passwordModeOn(*ch);
 		}
 		ch->addOperator(this->nickname);
-		// ch->_count = 0;
-		// ch->clients_nicknames.push_back(this->nickname);
 	}
-	else {
+	else
+	{
 		ch = &(srv.channels.find(ch_name)->second);
-		// if (ch->getMode(MD_K) && ch->getKey().compare(key)) {
-		// 	tmp = ":" + this->nickname + " #" + ch_name + " :Cannot join channel (+k)\r\n";
-		// 	send(srv.client_fd, tmp.c_str(), tmp.length(), 0);
-		// 	return ; //send error passwd message
-		// }
+		if (it->second.getMode(MD_I))
+			it->second._invited.erase(this->nickname);
 	}
 
 	ch->addClient(srv.client_fd);

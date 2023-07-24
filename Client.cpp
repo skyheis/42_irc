@@ -3,9 +3,8 @@
 Client::Client(int const &fd, int index) : _fd(fd) , index(index) , _authenticate(false)
 {
 	this->mappings["USER"] = &Client::setUser;
-	this->mappings["NICK"] = &Client::setNick;
-	this->mappings["JOIN"] = &Client::joinChannel;
 	this->mappings["KICK"] = &Client::kickUser;
+	this->mappings["JOIN"] = &Client::joinChannel;
 	this->mappings["PRIVMSG"] = &Client::privmsg;
 	this->mappings["INVITE"] = &Client::invite;
 	this->mappings["TOPIC"] = &Client::topic;
@@ -45,8 +44,6 @@ std::string	Client::getHalfbuf(void) {
 void		Client::setHalfbuf(std::string &buf) { this->_halfbuf += buf; }
 
 bool		Client::isHalfbugEmpty() const { return (this->_halfbuf.empty() ? true : false); }
-
-bool	Client::isOpInChannel(std::string channel, t_server &srv) { return (srv.channels[channel].isOperator(this->nickname)); }
 
 void	Client::init_operator(t_server &srv)
 {
@@ -99,7 +96,7 @@ void	Client::init_operator(t_server &srv)
 		{
 			// std::string msg = cmd_nickname + " has become an operator in channel: " + channel + "\r\n";
 			std::string msg = ":" + this->nickname + " MODE #" + channel + " +o " + cmd_nickname + "\r\n";
-			for (std::set<int>::const_iterator iter = srv.channels[channel]._clients.begin(); iter != srv.channels[channel]._clients.end(); ++iter)
+			for (std::set<int>::const_iterator iter = it->second._clients.begin(); iter != it->second._clients.end(); ++iter)
 				send((*iter), msg.c_str(), msg.length(), 0);
 			it->second.addOperator(cmd_nickname);
 		}
@@ -116,7 +113,7 @@ void	Client::init_operator(t_server &srv)
 		if (it != srv.channels.end())
 		{
 			std::string msg = ":" + this->nickname + " MODE #" + channel + " -o " + cmd_nickname + "\r\n";
-			for (std::set<int>::const_iterator iter = srv.channels[channel]._clients.begin(); iter != srv.channels[channel]._clients.end(); ++iter)
+			for (std::set<int>::const_iterator iter = it->second._clients.begin(); iter != it->second._clients.end(); ++iter)
 				send((*iter), msg.c_str(), msg.length(), 0);
 			it->second.removeOperator(cmd_nickname);
 		}
@@ -139,7 +136,7 @@ void	Client::setUser(t_server &srv)
 	std::getline(iss, zero, ' ');
 	std::getline(iss, star, ' ');
 	std::getline(iss, real, ' ');
-
+	
 	if (user.empty() || zero.empty() || star.empty() || real.empty())
 	{
 		std::string reply = "ERROR :No username given\r\n";
@@ -154,113 +151,6 @@ void	Client::setUser(t_server &srv)
 	}
 }
 
-void	Client::setNick(t_server &srv)
-{
-	std::istringstream iss(buf);
-	std::string command, nick;
-	std::getline(iss, command, ' ');
-	std::getline(iss, nick, ' ');
-
-	if (nick.empty())
-	{
-		std::string reply = ":ircap 431 " + this->nickname + " :No nickname given\r\n";
-		send(_fd, reply.c_str(), reply.length(), 0);
-	}
-	else if(srv.nicknames.count(nick))
-	{
-		std::string out = ":ircap 431 " + this->nickname + " :Nickname is already in use\r\n";
-		send(_fd, out.c_str(), out.length(), 0);
-		// std::string dis = "Disconnected ()\r\n";
-		// send(_fd, dis.c_str(), dis.length(), 0);
-		srv.check = false;
-		close(srv.client_fd);
-		return ;
-	}
-	else
-	{
-		std::string reply = ":" + this->nickname + " NICK " + nick + "\r\n";
-		send(_fd, reply.c_str(), reply.length(), 0);
-		nickname = nick;
-		srv.nicknames[nick] = this->_fd;
-	}
-}
-
-void	Client::checkOption(t_server &srv)
-{
-	std::istringstream iss(buf);
-	std::string command, chan, option;
-	std::getline(iss, command, ' ');
-	std::getline(iss, chan, ' ');
-	std::getline(iss, option, ' ');
-
-	if (chan.empty())
-	{
-		std::string reply = ":ircap 300 MODE :Not enough parameters\r\n"; 
-		send(_fd, reply.c_str(), reply.length(), 0);
-		return ;
-	}
-	else if (option.empty())
-		return ; //RPL_CHANNELMODEIS (324) 
-
-	if (chan[0] == '#')
-		chan.erase(chan.begin());
-	
-	if (option == "+k")
-		std::getline(iss, srv.channels[chan]._password, ' ');
-	else if (option == "+l")
-	{
-		std::string limit;
-		std::getline(iss, limit, ' ');
-		srv.channels[chan]._limit = std::strtod(limit.c_str(), NULL);
-		if (srv.channels[chan]._limit <= 0)
-		{
-			std::string reply = ":ircap 300 ERROR :Limit givin is negative!\r\n";
-			send(_fd, reply.c_str(), reply.length(), 0);
-			return ;
-
-		}
-		if (srv.channels[chan]._limit < srv.channels[chan]._count)
-		{
-			std::string reply = ":ircap 300 ERROR :Limit givin is less than the number of users present in the channel!\r\n";
-			send(_fd, reply.c_str(), reply.length(), 0);
-			return ;
-		}
-	}
-
-	if (srv.channels[chan]._operators.count(nickname))
-	{
-		if (option == "+o" || option == "-o")
-			init_operator(srv);
-		else if (option == "+i")
-			inviteOnlyModeOn(srv, chan);
-		else if (option == "-i")
-			inviteOnlyModeOff(srv, chan);
-		else if (option == "+t")
-			topicModeOn(srv, chan);
-		else if (option == "-t")
-			topicModeOff(srv, chan);
-		else if (option == "+k")
-			passwordModeOn(srv, chan);
-		else if (option == "-k")
-			passwordModeOff(srv, chan);
-		else if (option == "+l")
-			userLimitModeOn(srv, chan);
-		else if (option == "-l")
-			userLimitModeOff(srv, chan);
-		else
-		{
-			std::string reply = ":ircap 300 ERROR: Option was not found!\r\n";
-			send(_fd, reply.c_str(), reply.length(), 0);
-			return ;
-		}
-	}
-	else
-	{
-		std::string reply = ":ircap 482 " + this->nickname + " #" + chan + " :You're not channel operator\r\n";
-		send(_fd, reply.c_str(), reply.length(), 0);
-	}
-}
-
 void	Client::handleCmd(std::string str, t_server &srv)
 {
 	buf = str;
@@ -269,20 +159,20 @@ void	Client::handleCmd(std::string str, t_server &srv)
 	std::string command, arg;
 	std::getline(iss, command, ' ');
 	std::getline(iss, arg, '\0');
+
 	if (command == "/mode")
 		command = "MODE";
+
+	std::cout << "\033[32mClient:\033[0m " << index << " " << "\033[34mcommand:\033[0m " << command << " \033[33margs:\033[0m " << arg << std::endl;
+
 	if (command == "MODE" || command == "mode") {
 		checkOption(srv);
 		return ;
 	}
+	
 	std::map<std::string, void(Client::*)(t_server &srv)>::iterator it = this->mappings.find(command);
 	if(it != this->mappings.end())
-	{
-		std::cout << "\033[32mClient:\033[0m " << index << " " << "\033[34mcommand:\033[0m " << command << " \033[33margs:\033[0m " << arg << std::endl;
 		(this->*(it->second))(srv);
-	}
-	else
-		std::cout << "\033[32mClient:\033[0m " << index << " " << "\033[34mcommand:\033[0m " << command << " \033[33margs:\033[0m " << arg << std::endl;
 }
 
 Client::~Client() {}

@@ -3,8 +3,6 @@
 void	signalHandler(int signum) {
 	std::cout << "Interrupt signal (" << signum << ") received." << std::endl;
 	server_life = 0;
-	close(sock_fd);
-	exit(1);
 }
 
 static void	ft_init_error(std::string const &str){
