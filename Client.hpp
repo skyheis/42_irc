@@ -86,5 +86,11 @@ class Client
 		std::multiset<std::string>	getPokedex(void) const;
 
 
+		//bot
+		void						poke(t_server &srv);
+		void						addPoke(std::string name);
+		std::multiset<std::string>	getPokedex(void) const;
+
+
 		~Client();
 };

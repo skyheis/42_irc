@@ -69,4 +69,11 @@ class Channel {
 		bool			pokeCatch(Client &they);
 		std::string		pokeName(void) const;
 
+
+		//bot
+		bool			pokeSpawn(void);
+		bool			pokeIsSpawned(void);
+		bool			pokeCatch(Client &they);
+		std::string		pokeName(void) const;
+
 };
